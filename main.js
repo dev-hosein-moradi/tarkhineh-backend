@@ -1,3 +1,4 @@
+import http from "http";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -19,25 +20,25 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "./.env") });
 
-const main = () => {
-  const app = express();
-  app.use(cors());
-  app.use(morgan("combined"));
-  app.use(express.json());
-  app.use(express.static(path.join(".", "public")));
+const app = express();
+app.use(cors());
+app.use(morgan("combined"));
+app.use(express.json());
+app.use(express.static(path.join(".", "public")));
 
-  // routes
-  addAuthRouter(app);
-  addUserRouter(app);
-  addFoodRouter(app);
-  addBranchRouter(app);
-  addCartRouter(app);
-  addCategoryRouter(app);
+// routes
+addAuthRouter(app);
+addUserRouter(app);
+addFoodRouter(app);
+addBranchRouter(app);
+addCartRouter(app);
+addCategoryRouter(app);
 
-  app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
-  app.listen(process.env.PORT || 4000, () => {
-    console.log(`runnig on port => ${process.env.PORT || 4000}`);
-  });
-};
+app.get("/", (req, res) => {
+  res.json({ message: "Hello from Vercel!" });
+});
 
-main();
+app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
+app.listen(process.env.PORT || 4000, () => {
+  console.log(`runnig on port => ${process.env.PORT || 4000}`);
+});
