@@ -5,7 +5,9 @@ export const getCartsHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const carts = await GET();
-    cache.set(reqId, carts);
+    if (reqId) {
+      cache.set(reqId, carts);
+    }
 
     res.status(200).json({
       data: carts,
@@ -30,7 +32,9 @@ export const getCartHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const cart = await GETBYID(req.params.id);
-    cache.set(reqId, cart);
+    if (reqId) {
+      cache.set(reqId, cart);
+    }
 
     res.status(200).json({
       data: cart,

@@ -19,9 +19,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, "./.env") });
-
+// origin: "https://tarkhineh-theta.vercel.app",
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://tarkhineh-theta.vercel.app"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true,
+  })
+);
+
+app.options("*", cors());
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.static(path.join(".", "public")));

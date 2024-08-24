@@ -5,7 +5,9 @@ export const getCategoriesHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const categories = await GET();
-    cache.set(reqId, categories);
+    if (reqId) {
+      cache.set(reqId, categories);
+    }
 
     res.status(200).json({
       data: categories,
@@ -30,7 +32,9 @@ export const getCategoryHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const category = await GETBYID(req.params.id);
-    cache.set(reqId, category);
+    if (reqId) {
+      cache.set(reqId, category);
+    }
 
     res.status(200).json({
       data: category,

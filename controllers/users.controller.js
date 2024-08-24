@@ -3,8 +3,6 @@ import { DELETE, GET, GETBYID, PATCH } from "./users.actions.js";
 export const getUsersHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,

@@ -14,7 +14,7 @@ export const GET = async () => {
 
 export const GETBYID = async (id) => {
   try {
-    const cart = await CartModel.findById({ id });
+    const cart = await CartModel.findOne({ id: id });
     return cart;
   } catch (error) {
     console.error("[CART_ACTION_GETBYID]");

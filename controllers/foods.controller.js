@@ -5,8 +5,9 @@ export const getFoodsHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const foods = await GET();
-
-    cache.set(reqId, foods);
+    if (reqId) {
+      cache.set(reqId, foods);
+    }
 
     res.status(200).json({
       data: foods,
@@ -30,7 +31,9 @@ export const getFoodHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const food = await GETBYID(req.params.id);
-    cache.set(reqId, food);
+    if (reqId) {
+      cache.set(reqId, food);
+    }
 
     res.status(200).json({
       data: food,

@@ -32,7 +32,9 @@ export const getBranchHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const branch = await GETBYID(req.params.id);
-    cache.set(reqId, branch);
+    if (reqId) {
+      cache.set(reqId, branch);
+    }
 
     res.status(200).json({
       data: branch,

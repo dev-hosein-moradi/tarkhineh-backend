@@ -14,7 +14,7 @@ export const GET = async () => {
 
 export const GETBYID = async (id) => {
   try {
-    const food = await FoodModel.findById(id);
+    const food = await FoodModel.findOne({ id: id });
     return food;
   } catch (error) {
     console.error("[FOODS_GETBYID_ACTION]=> " + error);

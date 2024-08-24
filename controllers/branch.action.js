@@ -14,10 +14,11 @@ export const GET = async () => {
 
 export const GETBYID = async (id) => {
   try {
-    const branch = await BranchModel.findById({ id });
+    const branch = await BranchModel.findOne({ id: id });
+    console.log(branch);
     return branch;
   } catch (error) {
-    console.error("[BRANCH_ACTION_GETBYID]");
+    console.error("[BRANCH_ACTION_GETBYID]", error);
     return null;
   }
 };
