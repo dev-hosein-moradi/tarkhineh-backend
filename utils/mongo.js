@@ -13,8 +13,6 @@ if (!db_uri) {
 
 mongoose
   .connect(db_uri, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
     dbName: "tarkhineh-v1",
   })
   .then(() => {
