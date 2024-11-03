@@ -5,9 +5,9 @@ export const getFoodsHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const foods = await GET();
-    if (reqId) {
-      cache.set(reqId, foods);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, foods);
+    // }
 
     res.status(200).json({
       data: foods,
@@ -31,9 +31,9 @@ export const getFoodHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const food = await GETBYID(req.params.id);
-    if (reqId) {
-      cache.set(reqId, food);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, food);
+    // }
 
     res.status(200).json({
       data: food,
@@ -56,8 +56,6 @@ export const getFoodHandler = async (req, res) => {
 export const addFoodHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -89,8 +87,6 @@ export const addFoodHandler = async (req, res) => {
 export const updateFoodHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -122,8 +118,6 @@ export const updateFoodHandler = async (req, res) => {
 export const deleteFoodHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,

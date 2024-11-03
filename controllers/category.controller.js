@@ -5,9 +5,9 @@ export const getCategoriesHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const categories = await GET();
-    if (reqId) {
-      cache.set(reqId, categories);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, categories);
+    // }
 
     res.status(200).json({
       data: categories,
@@ -32,9 +32,9 @@ export const getCategoryHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const category = await GETBYID(req.params.id);
-    if (reqId) {
-      cache.set(reqId, category);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, category);
+    // }
 
     res.status(200).json({
       data: category,
@@ -58,8 +58,6 @@ export const getCategoryHandler = async (req, res) => {
 export const addCategoryHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -92,8 +90,6 @@ export const addCategoryHandler = async (req, res) => {
 export const updateCategoryHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -126,8 +122,6 @@ export const updateCategoryHandler = async (req, res) => {
 export const deleteCategoryHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,

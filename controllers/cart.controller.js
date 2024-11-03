@@ -5,9 +5,9 @@ export const getCartsHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const carts = await GET();
-    if (reqId) {
-      cache.set(reqId, carts);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, carts);
+    // }
 
     res.status(200).json({
       data: carts,
@@ -32,9 +32,9 @@ export const getCartHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const cart = await GETBYID(req.params.id);
-    if (reqId) {
-      cache.set(reqId, cart);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, cart);
+    // }
 
     res.status(200).json({
       data: cart,
@@ -58,8 +58,6 @@ export const getCartHandler = async (req, res) => {
 export const addCartHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -92,8 +90,6 @@ export const addCartHandler = async (req, res) => {
 export const updateCartHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -126,8 +122,6 @@ export const updateCartHandler = async (req, res) => {
 export const deleteCartHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,

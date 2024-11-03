@@ -1,69 +1,61 @@
-import { DELETE, GET, GETBYID, PATCH } from "./users.actions.js";
+import { cache } from "../helpers/cache.js";
+import { DELETE, GET, GETBYID, PATCH, POST } from "./address.action.js";
 
-export const getUsersHandler = async (req, res) => {
+export const getAddressesHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        status: 200,
-        error: "access denied",
-        message: "you don't have required permissions",
-        ok: false,
-      });
-    }
-
-    const users = await GET();
+    const { reqId } = req.body;
+    const addresses = await GET();
+    // if (reqId) {
+    //   cache.set(reqId, addresses);
+    // }
 
     res.status(200).json({
-      data: users,
+      data: addresses,
       status: 200,
       error: null,
       ok: true,
       message: "",
     });
   } catch (error) {
+    console.error("[ADDRESS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
       status: 500,
       error: error,
       ok: false,
-      message: "error in get users",
+      message: "error in get addresses",
     });
   }
 };
 
-export const getUserHandler = async (req, res) => {
+export const getAddressHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        status: 200,
-        error: "access denied",
-        message: "you don't have required permissions",
-        ok: false,
-      });
-    }
-    const user = await GETBYID(req.params.id);
+    const { reqId } = req.body;
+    const address = await GETBYID(req.params.id);
+    // if (reqId) {
+    //   cache.set(reqId, address);
+    // }
 
     res.status(200).json({
-      data: user,
+      data: address,
       status: 200,
       error: null,
       ok: true,
       message: "",
     });
   } catch (error) {
+    console.error("[ADDRESS_CONTROLLER_GET]");
     res.status(500).json({
       data: null,
       status: 500,
       error: error,
       ok: false,
-      message: "error in get user",
+      message: "error in get address",
     });
   }
 };
 
-export const addUserHandler = async (req, res) => {
+export const addAddressHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
@@ -75,27 +67,27 @@ export const addUserHandler = async (req, res) => {
       });
     }
 
-    const user = await POST(req.body);
-
+    const address = await POST(req.body);
     res.status(200).json({
-      data: user,
+      data: address,
       status: 200,
       error: null,
       ok: true,
       message: "",
     });
   } catch (error) {
+    console.error("[ADDRESS_CONTROLLER_POST]");
     res.status(500).json({
       data: null,
       status: 500,
       error: error,
       ok: false,
-      message: "error in add user",
+      message: "error in get address",
     });
   }
 };
 
-export const updateUserHandler = async (req, res) => {
+export const updateAddressHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
@@ -107,27 +99,27 @@ export const updateUserHandler = async (req, res) => {
       });
     }
 
-    const user = await PATCH(req.body);
-
+    const address = await PATCH(req.body);
     res.status(200).json({
-      data: user,
+      data: address,
       status: 200,
       error: null,
       ok: true,
       message: "",
     });
   } catch (error) {
+    console.error("[ADDRESS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
       status: 500,
       error: error,
       ok: false,
-      message: "error in update user",
+      message: "error in get address",
     });
   }
 };
 
-export const deleteUserHandler = async (req, res) => {
+export const deleteAddressHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
@@ -139,22 +131,22 @@ export const deleteUserHandler = async (req, res) => {
       });
     }
 
-    const user = await DELETE(req.body);
-
+    const address = await DELETE(req.body);
     res.status(200).json({
-      data: user,
+      data: address,
       status: 200,
       error: null,
       ok: true,
       message: "",
     });
   } catch (error) {
+    console.error("[ADDRESS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
       status: 500,
       error: error,
       ok: false,
-      message: "error in delete user",
+      message: "error in get address",
     });
   }
 };

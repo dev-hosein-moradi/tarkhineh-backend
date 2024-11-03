@@ -5,9 +5,9 @@ export const getBranchsHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const branchs = await GET();
-    if (reqId) {
-      cache.set(reqId, branchs);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, branchs);
+    // }
 
     res.status(200).json({
       data: branchs,
@@ -32,9 +32,9 @@ export const getBranchHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const branch = await GETBYID(req.params.id);
-    if (reqId) {
-      cache.set(reqId, branch);
-    }
+    // if (reqId) {
+    //   cache.set(reqId, branch);
+    // }
 
     res.status(200).json({
       data: branch,
@@ -58,8 +58,6 @@ export const getBranchHandler = async (req, res) => {
 export const addBranchsHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -84,7 +82,7 @@ export const addBranchsHandler = async (req, res) => {
       status: 500,
       error: error,
       ok: false,
-      message: "error in get foods",
+      message: "error in get branch",
     });
   }
 };
@@ -92,8 +90,6 @@ export const addBranchsHandler = async (req, res) => {
 export const updateBranchsHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -118,7 +114,7 @@ export const updateBranchsHandler = async (req, res) => {
       status: 500,
       error: error,
       ok: false,
-      message: "error in get foods",
+      message: "error in get branch",
     });
   }
 };
@@ -126,8 +122,6 @@ export const updateBranchsHandler = async (req, res) => {
 export const deleteBranchsHandler = async (req, res) => {
   try {
     if (req.authData.userType !== "admin") {
-      console.log(req.authData);
-
       return res.status(403).json({
         data: null,
         status: 200,
@@ -152,7 +146,7 @@ export const deleteBranchsHandler = async (req, res) => {
       status: 500,
       error: error,
       ok: false,
-      message: "error in get foods",
+      message: "error in get branch",
     });
   }
 };
