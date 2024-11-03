@@ -36,7 +36,10 @@ export const registerUserHandler = async (req, res) => {
 
 export const loginUserHandler = async (req, res) => {
   try {
-    const user = await loginUser(req?.body?.mobile, req?.body?.password);
+    const user = await loginUser(
+      req?.body?.data.mobile,
+      req?.body?.data.password
+    );
 
     if (user) {
       res
