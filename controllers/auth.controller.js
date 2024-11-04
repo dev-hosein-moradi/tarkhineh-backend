@@ -5,31 +5,28 @@ export const registerUserHandler = async (req, res) => {
   try {
     const token = await registerUser(req?.body?.mobile, req?.body?.password);
 
-    if (token) {
+    if (token.success) {
       res.status(200).setHeader("Authorization", `Bearer ${token}`).json({
-        data: token,
-        status: 200,
-        error: null,
-        ok: true,
-        message: "successfuly register",
+        data: token.token,
+        error: token.error,
+        ok: token.success,
+        message: token.message,
       });
     } else {
       res.status(400).json({
-        data: token,
-        status: 400,
-        error: "invalid data",
+        data: null,
+        error: null,
         ok: false,
-        message: "error in register",
+        message: "در ثبت نام کاربر مشکلی پیش آمده است",
       });
     }
   } catch (error) {
     console.error("[AUTH_REGISTER]=> " + error);
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in register",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -41,47 +38,44 @@ export const loginUserHandler = async (req, res) => {
       req?.body?.data.password
     );
 
-    if (user) {
+    if (user.success) {
       res
         .cookie(
           "refreshToken",
           refreshToken({
-            id: user.id,
-            email: user.email,
-            mobileNumber: user.mobileNumber,
-            userType: user.__t,
+            id: user.token.id,
+            email: user.token.email,
+            mobileNumber: user.token.mobileNumber,
+            userType: user.token.__t,
           }),
           {
             httpOnly: true,
             sameSite: "strict",
           }
         )
-        .setHeader("Authorization", `Bearer ${user}`)
+        .setHeader("Authorization", `Bearer ${user.token}`)
         .status(200)
         .json({
-          data: user,
-          status: 200,
-          error: null,
-          ok: true,
-          message: "successfully login",
+          data: user.token,
+          error: user.error,
+          ok: user.success,
+          message: user.message,
         });
     } else {
       res.status(400).json({
         data: null,
-        status: 400,
-        error: "invalid data",
+        error: null,
         ok: false,
-        message: "invalid data",
+        message: "در ورود کاربر مشکلی پیش آمده است",
       });
     }
   } catch (error) {
     console.error("[AUTH_LOGIN]=> " + error);
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in login",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };

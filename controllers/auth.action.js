@@ -1,9 +1,5 @@
 import models from "../models/index.js";
-import {
-  validateMobileNumber,
-  validatePassword,
-  validateUser,
-} from "../utils/validator.js";
+import { validateMobileNumber, validatePassword } from "../utils/validator.js";
 import { comparePasswordHash, generatePasswordHash } from "../helpers/hash.js";
 import { generateToken } from "../utils/jwt.js";
 import { v4 } from "uuid";
@@ -46,17 +42,26 @@ export const registerUser = async (
           mobileNumber: newUser.mobileNumber,
           userType: newUser.__t,
         });
-        console.log("tokennn => " + token);
-
-        return token;
+        return {
+          token,
+          success: true,
+          message: "ثبت نام با موفقیت انجام شد",
+          error: null,
+        };
       }
-      console.error("invalid register user data, already exist" + existingUser);
-      return null;
-    } else {
-      return null;
+      return {
+        success: false,
+        message: "اطلاعات کاربر وارد شده تکراری می باشد",
+        error: null,
+      };
     }
   } catch (error) {
     console.error("[AUTH_ACTION_REGISTER]=> " + error);
+    return {
+      success: false,
+      message: "در ثبت نام کاربر خطا رخ داده است",
+      error: error,
+    };
   }
 };
 
@@ -73,12 +78,20 @@ export const loginUser = async (mobile, password) => {
           userType: entity.__t,
         });
 
-        return token;
+        return {
+          token,
+          success: true,
+          message: "ورود با موفقیت انجام شد",
+          error: null,
+        };
       }
-    } else {
-      return null;
     }
   } catch (error) {
     console.error("[AUTH_ACTION_LOGIN]=> " + error);
+    return {
+      success: false,
+      message: "در ورود کاربر خطا رخ داده است",
+      error: error,
+    };
   }
 };

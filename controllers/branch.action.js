@@ -5,21 +5,38 @@ const { BranchModel } = models;
 export const GET = async () => {
   try {
     const branchs = await BranchModel.find();
-    return branchs;
+    return {
+      branchs,
+      success: true,
+      message: " موفقیت آمیز",
+      error: null,
+    };
   } catch (error) {
     console.error("[BRANCH_ACTION_GET]");
-    return [];
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const GETBYID = async (id) => {
   try {
     const branch = await BranchModel.findOne({ id: id });
-    console.log(branch);
-    return branch;
+    return {
+      branch,
+      success: true,
+      message: " موفقیت آمیز",
+      error: null,
+    };
   } catch (error) {
     console.error("[BRANCH_ACTION_GETBYID]", error);
-    return null;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
@@ -27,29 +44,59 @@ export const POST = async (data) => {
   try {
     const newBranch = new BranchModel(data);
     await newBranch.save();
-    return true;
+    return {
+      newBranch,
+      success: true,
+      message: "شعبه با موفقیت ثبت شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[BRANCH_ACTION_POST]");
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const PATCH = async (data) => {
   try {
-    await BranchModel.findOneAndUpdate({ id: data.id }, data).exec();
-    return true;
+    const updated = await BranchModel.findOneAndUpdate(
+      { id: data.id },
+      data
+    ).exec();
+    return {
+      updated,
+      success: true,
+      message: "شعبه با موفقیت ویرایش شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[BRANCH_ACTION_PATCH]");
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const DELETE = async (id) => {
   try {
-    await BranchModel.findOneAndDelete({ id }).exec();
-    return true;
+    const deleted = await BranchModel.findOneAndDelete({ id }).exec();
+    return {
+      deleted,
+      success: true,
+      message: "شعبه با موفقیت حذف شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[BRANCH_ACTION_DELETE]");
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };

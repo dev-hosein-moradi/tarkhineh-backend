@@ -11,13 +11,11 @@ import {
 
 const foodRouter = Router();
 // public route
-foodRouter.get("/api/foods", getAddressesHandler);
-foodRouter.get("/api/food/:id", getAddressHandler);
-
-// protected route
-foodRouter.post("/admin/food", authenticateToken, addAddressHandler);
-foodRouter.patch("/admin/food", authenticateToken, updateAddressHandler);
-foodRouter.delete("/admin/food", authenticateToken, deleteAddressHandler);
+foodRouter.get("/api/addresses", getAddressesHandler);
+foodRouter.get("/api/address/:id", getAddressHandler);
+foodRouter.post("/api/address", authenticateToken, addAddressHandler);
+foodRouter.patch("/api/address", authenticateToken, updateAddressHandler);
+foodRouter.delete("/api/address", authenticateToken, deleteAddressHandler);
 
 export default (app) => {
   app.use("/", foodRouter);

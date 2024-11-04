@@ -9,21 +9,28 @@ export const getOrdersHandler = async (req, res) => {
     //   cache.set(reqId, orders);
     // }
 
-    res.status(200).json({
-      data: orders,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (orders.success) {
+      res.status(200).json({
+        data: orders.orders,
+        error: orders.error,
+        ok: orders.success,
+        message: orders.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت سفارشات مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ORDERS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get orders",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -36,21 +43,28 @@ export const getOrderHandler = async (req, res) => {
     //   cache.set(reqId, order);
     // }
 
-    res.status(200).json({
-      data: order,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (order.success) {
+      res.status(200).json({
+        data: order.message,
+        error: order.error,
+        ok: order.success,
+        message: order.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت سفارش مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ORDER_CONTROLLER_GET]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get order",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -60,29 +74,36 @@ export const addOrderHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const order = await POST(req.body);
-    res.status(200).json({
-      data: order,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (order.success) {
+      res.status(200).json({
+        data: order.newOrder,
+        error: order.error,
+        ok: order.success,
+        message: order.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ایجاد سفارش مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ORDER_CONTROLLER_POST]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get order",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -92,29 +113,36 @@ export const updateOrderHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const order = await PATCH(req.body);
-    res.status(200).json({
-      data: order,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (order.success) {
+      res.status(200).json({
+        data: order.updated,
+        error: order.error,
+        ok: order.success,
+        message: order.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ویرایش سفارش مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ORDER_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get order",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -124,29 +152,35 @@ export const deleteOrderHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const order = await DELETE(req.body);
-    res.status(200).json({
-      data: order,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (order.success) {
+      res.status(200).json({
+        data: order.deleted,
+        error: order.error,
+        ok: order.success,
+        message: order.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در حذف سفارش مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ORDERS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get order",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };

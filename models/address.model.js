@@ -8,10 +8,6 @@ const AddressSchema = new Schema({
     type: String,
     required: true,
   },
-  foodId: {
-    type: String,
-    required: true,
-  },
   userId: {
     type: String,
     required: true,
@@ -28,7 +24,7 @@ const AddressSchema = new Schema({
     type: String,
     required: true,
   },
-  isRevciver: {
+  isReciver: {
     type: Boolean,
     required: true,
   },

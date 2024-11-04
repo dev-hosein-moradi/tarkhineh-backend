@@ -8,22 +8,28 @@ export const getCartsHandler = async (req, res) => {
     // if (reqId) {
     //   cache.set(reqId, carts);
     // }
-
-    res.status(200).json({
-      data: carts,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (carts.success) {
+      res.status(200).json({
+        data: carts.carts,
+        error: carts.error,
+        ok: carts.success,
+        message: carts.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت سبد ها مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CART_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get carts",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -35,22 +41,28 @@ export const getCartHandler = async (req, res) => {
     // if (reqId) {
     //   cache.set(reqId, cart);
     // }
-
-    res.status(200).json({
-      data: cart,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (cart.success) {
+      res.status(200).json({
+        data: cart.cart,
+        error: cart.error,
+        ok: cart.success,
+        message: cart.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت سبد مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CART_CONTROLLER_GET]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get cart",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -60,29 +72,36 @@ export const addCartHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const cart = await POST(req.body);
-    res.status(200).json({
-      data: cart,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (cart.success) {
+      res.status(200).json({
+        data: cart.carts,
+        error: cart.error,
+        ok: cart.success,
+        message: cart.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ثبت سبد مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CART_CONTROLLER_POST]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get cart",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -92,29 +111,36 @@ export const updateCartHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const cart = await PATCH(req.body);
-    res.status(200).json({
-      data: cart,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (cart.success) {
+      res.status(200).json({
+        data: cart.carts,
+        error: cart.error,
+        ok: cart.success,
+        message: cart.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ویرایش سبد مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CART_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get cart",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -124,29 +150,36 @@ export const deleteCartHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const cart = await DELETE(req.body);
-    res.status(200).json({
-      data: cart,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (cart.success) {
+      res.status(200).json({
+        data: cart.carts,
+        error: cart.error,
+        ok: cart.success,
+        message: cart.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در حذف سبد مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CART_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get cart",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };

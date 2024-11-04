@@ -1,5 +1,5 @@
 import { cache } from "../helpers/cache.js";
-import { DELETE, GET, GETBYID, PATCH } from "./foods.action.js";
+import { DELETE, GET, GETBYID, PATCH, POST } from "./foods.action.js";
 
 export const getFoodsHandler = async (req, res) => {
   try {
@@ -9,20 +9,27 @@ export const getFoodsHandler = async (req, res) => {
     //   cache.set(reqId, foods);
     // }
 
-    res.status(200).json({
-      data: foods,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (foods.success) {
+      res.status(200).json({
+        data: foods.foods,
+        error: foods.error,
+        ok: foods.success,
+        message: foods.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت محصولات مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get foods",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -34,21 +41,27 @@ export const getFoodHandler = async (req, res) => {
     // if (reqId) {
     //   cache.set(reqId, food);
     // }
-
-    res.status(200).json({
-      data: food,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (food.success) {
+      res.status(200).json({
+        data: food.food,
+        error: food.error,
+        ok: food.success,
+        message: food.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت محصول مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get food",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -58,28 +71,35 @@ export const addFoodHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const food = await POST(req.body);
-    res.status(200).json({
-      data: food,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (food.success) {
+      res.status(200).json({
+        data: food.newFood,
+        error: food.error,
+        ok: food.success,
+        message: food.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ایجاد محصول مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in add food",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -89,28 +109,35 @@ export const updateFoodHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const food = await PATCH(req.body);
-    res.status(200).json({
-      data: food,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (food.success) {
+      res.status(200).json({
+        data: food.updated,
+        error: food.error,
+        ok: food.success,
+        message: food.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ویرایش محصول مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in update food",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -120,28 +147,35 @@ export const deleteFoodHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const food = await DELETE(req.body);
-    res.status(200).json({
-      data: food,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (food.success) {
+      res.status(200).json({
+        data: food.deleted,
+        error: food.error,
+        ok: food.success,
+        message: food.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در حذف محصول مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in delete food",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };

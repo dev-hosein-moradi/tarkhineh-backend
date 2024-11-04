@@ -5,20 +5,38 @@ const { AddressModel } = models;
 export const GET = async () => {
   try {
     const addresses = await AddressModel.find();
-    return addresses;
+    return {
+      addresses,
+      success: true,
+      message: "دریافت موفقیت آمیز",
+      error: null,
+    };
   } catch (error) {
     console.error("[ADDRESS_ACTION_GET]");
-    return [];
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const GETBYID = async (id) => {
   try {
     const address = await AddressModel.findOne({ id: id });
-    return address;
+    return {
+      address,
+      success: true,
+      message: "دریافت موفقیت آمیز",
+      error: null,
+    };
   } catch (error) {
     console.error("[ADDRESS_ACTION_GETBYID]", error);
-    return null;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
@@ -26,29 +44,59 @@ export const POST = async (data) => {
   try {
     const newAddress = new AddressModel(data);
     await newAddress.save();
-    return true;
+    return {
+      newAddress,
+      success: true,
+      message: "آدرس با موفقیت ثبت شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[ADDRESS_ACTION_POST]");
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const PATCH = async (data) => {
   try {
-    await AddressModel.findOneAndUpdate({ id: data.id }, data).exec();
-    return true;
+    const updated = await AddressModel.findOneAndUpdate(
+      { id: data.id },
+      data
+    ).exec();
+    return {
+      updated,
+      success: true,
+      message: "آدرس با موفقیت ویرایش شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[ADDRESS_ACTION_PATCH]");
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const DELETE = async (id) => {
   try {
-    await AddressModel.findOneAndDelete({ id }).exec();
-    return true;
+    const deleted = await AddressModel.findOneAndDelete({ id }).exec();
+    return {
+      deleted,
+      success: true,
+      message: "آدرس با موفقیت حذف شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[ADDRESS_ACTION_DELETE]");
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };

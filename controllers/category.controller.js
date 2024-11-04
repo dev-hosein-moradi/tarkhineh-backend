@@ -9,21 +9,28 @@ export const getCategoriesHandler = async (req, res) => {
     //   cache.set(reqId, categories);
     // }
 
-    res.status(200).json({
-      data: categories,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (categories.success) {
+      res.status(200).json({
+        data: categories.categories,
+        error: categories.error,
+        ok: categories.success,
+        message: categories.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت دسته بندی ها مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CATEGORY_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get category",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -36,21 +43,28 @@ export const getCategoryHandler = async (req, res) => {
     //   cache.set(reqId, category);
     // }
 
-    res.status(200).json({
-      data: category,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (category.success) {
+      res.status(200).json({
+        data: category.category,
+        error: category.error,
+        ok: category.success,
+        message: category.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت دسته بندی مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CATEGORY_CONTROLLER_GET]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get category",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -60,29 +74,36 @@ export const addCategoryHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const category = await POST(req.body);
-    res.status(200).json({
-      data: category,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (category.success) {
+      res.status(200).json({
+        data: category.newCategory,
+        error: category.error,
+        ok: category.success,
+        message: category.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ایجاد دسته بندی مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CATEGORY_CONTROLLER_POST]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get category",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -92,29 +113,36 @@ export const updateCategoryHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const category = await PATCH(req.body);
-    res.status(200).json({
-      data: category,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (category.success) {
+      res.status(200).json({
+        data: category.updated,
+        error: category.error,
+        ok: category.success,
+        message: category.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ویرایش دسته بندی مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CATEGORY_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get category",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -124,29 +152,36 @@ export const deleteCategoryHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const category = await DELETE(req.body);
-    res.status(200).json({
-      data: category,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (category.success) {
+      res.status(200).json({
+        data: category.deleted,
+        error: category.error,
+        ok: category.success,
+        message: category.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در حذف دسته بندی مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[CATEGORY_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get category",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };

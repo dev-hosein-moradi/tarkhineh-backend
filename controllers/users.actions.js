@@ -5,20 +5,38 @@ const { UserModel } = models;
 export const GET = async () => {
   try {
     const users = await UserModel.find();
-    return users;
+    return {
+      users,
+      success: true,
+      message: "دریافت موفقیت آمیز",
+      error: null,
+    };
   } catch (error) {
     console.error("[USER_GETALL_ACTION]=> " + error);
-    return [];
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const GETBYID = async (id) => {
   try {
     const user = await UserModel.findOne({ id: id });
-    return user;
+    return {
+      user,
+      success: true,
+      message: "دریافت موفقیت آمیز",
+      error: null,
+    };
   } catch (error) {
     console.error("[FOODS_GETBYID_ACTION]=> " + error);
-    return [];
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
@@ -26,29 +44,59 @@ export const POST = async (data) => {
   try {
     const newUser = new UserModel(data);
     await newUser.save();
-    return true;
+    return {
+      newUser,
+      success: true,
+      message: "کاربر با موفقیت ایجاد شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[FOODS_POST_ACTION]=> " + error);
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const PATCH = async (data) => {
   try {
-    await UserModel.findOneAndUpdate({ id: data.id }, data).exec();
-    return true;
+    const updated = await UserModel.findOneAndUpdate(
+      { id: data.id },
+      data
+    ).exec();
+    return {
+      updated,
+      success: true,
+      message: "کاربر با موفقیت ویرایش شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[FOODS_POST_ACTION]=> " + error);
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };
 
 export const DELETE = async (id) => {
   try {
-    await UserModel.findOneAndDelete({ id }).exec();
-    return true;
+    const deleted = await UserModel.findOneAndDelete({ id }).exec();
+    return {
+      deleted,
+      success: true,
+      message: "کاربر با موفقیت حذف شد",
+      error: null,
+    };
   } catch (error) {
     console.error("[FOODS_POST_ACTION]=> " + error);
-    return false;
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
   }
 };

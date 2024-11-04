@@ -38,14 +38,14 @@ export const authenticateToken = (req, res, next) => {
         res.status(403).json({
           data: null,
           error: err,
-          message: "token authentication error",
+          message: "احراز هویت شما ناموفق بود",
           ok: false,
         });
       } else if (authData.userType != "admin" && route.startsWith("/admin/")) {
         return res.status(403).json({
           data: null,
           error: "access denied",
-          message: "you don't have required permissions",
+          message: "شما مجوز لازم برای انجام این عملیات را ندارید",
           ok: false,
         });
       }

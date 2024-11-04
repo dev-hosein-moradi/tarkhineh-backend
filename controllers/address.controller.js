@@ -8,22 +8,28 @@ export const getAddressesHandler = async (req, res) => {
     // if (reqId) {
     //   cache.set(reqId, addresses);
     // }
-
-    res.status(200).json({
-      data: addresses,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (addresses.addresses) {
+      res.status(200).json({
+        data: addresses.addresses,
+        error: addresses.error,
+        ok: addresses.success,
+        message: addresses.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت آدرس ها مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ADDRESS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get addresses",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -35,22 +41,28 @@ export const getAddressHandler = async (req, res) => {
     // if (reqId) {
     //   cache.set(reqId, address);
     // }
-
-    res.status(200).json({
-      data: address,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+    if (address.success) {
+      res.status(200).json({
+        data: address.address,
+        error: address.error,
+        ok: address.success,
+        message: address.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت آدرس مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ADDRESS_CONTROLLER_GET]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get address",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -60,29 +72,36 @@ export const addAddressHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const address = await POST(req.body);
-    res.status(200).json({
-      data: address,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (address.success) {
+      res.status(200).json({
+        data: address.newAddress,
+        error: address.error,
+        ok: address.success,
+        message: address.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ایجاد آدرس مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ADDRESS_CONTROLLER_POST]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get address",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -92,29 +111,36 @@ export const updateAddressHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const address = await PATCH(req.body);
-    res.status(200).json({
-      data: address,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (address.success) {
+      res.status(200).json({
+        data: address.updated,
+        error: address.error,
+        ok: address.success,
+        message: address.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در ویرایش آدرس مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ADDRESS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get address",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -124,29 +150,36 @@ export const deleteAddressHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        status: 200,
         error: "access denied",
-        message: "you don't have required permissions",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
     const address = await DELETE(req.body);
-    res.status(200).json({
-      data: address,
-      status: 200,
-      error: null,
-      ok: true,
-      message: "",
-    });
+
+    if (address.success) {
+      res.status(200).json({
+        data: address.deleted,
+        error: address.error,
+        ok: address.success,
+        message: address.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در حذف آدرس مشکلی پیش آمده است",
+      });
+    }
   } catch (error) {
     console.error("[ADDRESS_CONTROLLER_GETALL]");
     res.status(500).json({
       data: null,
-      status: 500,
       error: error,
       ok: false,
-      message: "error in get address",
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
     });
   }
 };
