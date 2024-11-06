@@ -80,6 +80,8 @@ export const loginUser = async (mobile, password) => {
 
         return {
           token,
+          userId: entity.id,
+          mobile: entity.mobileNumber,
           success: true,
           message: "ورود با موفقیت انجام شد",
           error: null,

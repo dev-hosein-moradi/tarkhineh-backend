@@ -1,10 +1,51 @@
 import { cache } from "../helpers/cache.js";
-import { DELETE, GET, GETBYID, PATCH, POST } from "./address.action.js";
+import {
+  DELETE,
+  GET,
+  GETBYID,
+  GETBYUSER,
+  PATCH,
+  POST,
+} from "./address.action.js";
 
 export const getAddressesHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const addresses = await GET();
+    // if (reqId) {
+    //   cache.set(reqId, addresses);
+    // }
+    if (addresses.addresses) {
+      res.status(200).json({
+        data: addresses.addresses,
+        error: addresses.error,
+        ok: addresses.success,
+        message: addresses.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت آدرس ها مشکلی پیش آمده است",
+      });
+    }
+  } catch (error) {
+    console.error("[ADDRESS_CONTROLLER_GETALL]");
+    res.status(500).json({
+      data: null,
+      error: error,
+      ok: false,
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+    });
+  }
+};
+
+export const getAddressesByUserHandler = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    const addresses = await GETBYUSER(userId);
     // if (reqId) {
     //   cache.set(reqId, addresses);
     // }

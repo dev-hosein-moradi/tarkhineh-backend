@@ -21,6 +21,26 @@ export const GET = async () => {
   }
 };
 
+export const GETBYUSER = async (id) => {
+  try {
+    const addresses = await AddressModel.find({ userId: id });
+
+    return {
+      addresses,
+      success: true,
+      message: "دریافت موفقیت آمیز",
+      error: null,
+    };
+  } catch (error) {
+    console.error("[ADDRESS_ACTION_GET]");
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
+  }
+};
+
 export const GETBYID = async (id) => {
   try {
     const address = await AddressModel.findOne({ id: id });

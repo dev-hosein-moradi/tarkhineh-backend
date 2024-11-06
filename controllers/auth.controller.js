@@ -56,7 +56,11 @@ export const loginUserHandler = async (req, res) => {
         .setHeader("Authorization", `Bearer ${user.token}`)
         .status(200)
         .json({
-          data: user.token,
+          data: {
+            token: user.token,
+            userId: user.userId,
+            mobile: user.mobile,
+          },
           error: user.error,
           ok: user.success,
           message: user.message,
