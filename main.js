@@ -35,14 +35,6 @@ app.use(
 
 app.options("*", cors());
 
-app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS"
-  );
-  next();
-});
-
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.static(path.join(".", "public")));

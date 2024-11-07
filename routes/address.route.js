@@ -16,7 +16,7 @@ foodRouter.get("/api/addresses", getAddressesByUserHandler);
 foodRouter.get("/api/address/:id", getAddressHandler);
 foodRouter.post("/api/address", authenticateToken, addAddressHandler);
 foodRouter.patch("/api/address", authenticateToken, updateAddressHandler);
-foodRouter.delete("/api/address", authenticateToken, deleteAddressHandler);
+foodRouter.delete("/api/address/:id", authenticateToken, deleteAddressHandler);
 
 // for admin
 foodRouter.get("/admin/addresses", getAddressesHandler);

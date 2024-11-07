@@ -197,7 +197,7 @@ export const deleteAddressHandler = async (req, res) => {
       });
     }
 
-    const address = await DELETE(req.body);
+    const address = await DELETE(req.params.id);
 
     if (address.success) {
       res.status(200).json({

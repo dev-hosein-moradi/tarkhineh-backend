@@ -35,6 +35,40 @@ export const getOrdersHandler = async (req, res) => {
   }
 };
 
+export const getOrdersByUserHandler = async (req, res) => {
+  try {
+    const { reqId } = req.body;
+    const orders = await GET();
+    // if (reqId) {
+    //   cache.set(reqId, orders);
+    // }
+
+    if (orders.success) {
+      res.status(200).json({
+        data: orders.orders,
+        error: orders.error,
+        ok: orders.success,
+        message: orders.message,
+      });
+    } else {
+      res.status(400).json({
+        data: null,
+        error: "error",
+        ok: false,
+        message: "در دریافت سفارشات مشکلی پیش آمده است",
+      });
+    }
+  } catch (error) {
+    console.error("[ORDERS_CONTROLLER_GETALL]");
+    res.status(500).json({
+      data: null,
+      error: error,
+      ok: false,
+      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+    });
+  }
+};
+
 export const getOrderHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
