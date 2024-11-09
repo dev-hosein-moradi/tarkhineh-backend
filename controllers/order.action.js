@@ -43,15 +43,19 @@ export const GETBYID = async (id) => {
 export const POST = async (data) => {
   try {
     const newOrder = new OrderModel(data);
+    console.log(newOrder);
+
     await newOrder.save();
     return {
-      newOrder,
+      newOrder: newOrder.code,
       success: true,
       message: "سفارش با موفقیت ایجاد شد",
       error: null,
     };
   } catch (error) {
     console.error("[ORDER_ACTION_POST]");
+    console.log(error);
+
     return {
       success: false,
       message: "خطا",

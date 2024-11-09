@@ -105,14 +105,7 @@ export const getOrderHandler = async (req, res) => {
 
 export const addOrderHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
+    console.log(req.authData);
 
     const order = await POST(req.body);
 
@@ -133,6 +126,8 @@ export const addOrderHandler = async (req, res) => {
     }
   } catch (error) {
     console.error("[ORDER_CONTROLLER_POST]");
+    console.log(error);
+
     res.status(500).json({
       data: null,
       error: error,

@@ -49,6 +49,8 @@ export const authenticateToken = (req, res, next) => {
           ok: false,
         });
       }
+      console.log(authData);
+      
       req.authData = authData;
       next();
     });

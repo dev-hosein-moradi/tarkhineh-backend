@@ -16,6 +16,7 @@ import addCartRouter from "./routes/cart.route.js";
 import addCategoryRouter from "./routes/category.route.js";
 import addAddressRouter from "./routes/address.route.js";
 import addOrderRouter from "./routes/order.route.js";
+import addDateRouter from "./routes/date.route.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +49,7 @@ addCartRouter(app);
 addCategoryRouter(app);
 addAddressRouter(app);
 addOrderRouter(app);
+addDateRouter(app);
 
 app.get("/", (req, res) => {
   res.json({ message: "Hello from Vercel!" });

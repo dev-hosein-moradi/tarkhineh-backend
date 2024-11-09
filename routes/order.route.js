@@ -13,8 +13,8 @@ import {
 const foodRouter = Router();
 // public route
 foodRouter.get("/api/orders", getOrdersByUserHandler);
-
 foodRouter.get("/api/order/:id", getOrderHandler);
+foodRouter.post("/api/order", addOrderHandler);
 
 // protected route
 foodRouter.post("/admin/order", authenticateToken, addOrderHandler);
