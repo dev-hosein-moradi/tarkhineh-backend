@@ -38,6 +38,8 @@ export const getBranchHandler = async (req, res) => {
   try {
     const { reqId } = req.body;
     const branch = await GETBYID(req.params.id);
+    console.log("cnt. id is " + req.params.id);
+    
     // if (reqId) {
     //   cache.set(reqId, branch);
     // }

@@ -24,6 +24,7 @@ export const GET = async () => {
 export const GETBYID = async (id) => {
   try {
     const food = await FoodModel.findOne({ id: id });
+    
     return {
       food,
       success: true,

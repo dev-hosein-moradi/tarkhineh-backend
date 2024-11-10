@@ -52,6 +52,10 @@ const OrderSchema = new Schema({
     enum: ["1", "2"],
     default: "1",
   },
+  branchId: {
+    type: String,
+    required: true,
+  },
 });
 
 /* 

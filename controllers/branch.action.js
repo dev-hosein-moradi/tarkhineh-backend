@@ -24,6 +24,9 @@ export const GET = async () => {
 export const GETBYID = async (id) => {
   try {
     const branch = await BranchModel.findOne({ id: id });
+    console.log(branch);
+    console.log(id);
+
     return {
       branch,
       success: true,
