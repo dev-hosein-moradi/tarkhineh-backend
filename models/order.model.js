@@ -33,7 +33,6 @@ const OrderSchema = new Schema({
   },
   userAddress: {
     type: String,
-    required: true,
   },
   price: {
     type: String,
@@ -48,6 +47,11 @@ const OrderSchema = new Schema({
     required: true,
   },
   deliverType: {
+    type: String,
+    enum: ["1", "2"],
+    default: "1",
+  },
+  paymentType: {
     type: String,
     enum: ["1", "2"],
     default: "1",
