@@ -27,6 +27,10 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  __t: {
+    type: String,
+    required: true,
+  },
 });
 
 const UserModel = mongoose_client.model("user", UserSchema);

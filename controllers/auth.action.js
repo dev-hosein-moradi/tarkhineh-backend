@@ -6,16 +6,10 @@ import { v4 } from "uuid";
 
 const { UserModel } = models;
 
-export const registerUser = async (
-  mobile = "",
-  password = "",
-  type = "user"
-) => {
+export const registerUser = async (mobile = "", password = "", type = "") => {
   try {
     if (validateMobileNumber(mobile) && validatePassword(password)) {
-      const existingUser = await UserModel.findOne({
-        mobileNumber: mobile,
-      });
+      const existingUser = await UserModel.findOne({ mobileNumber: mobile });
 
       if (!existingUser) {
         let model;
@@ -32,6 +26,7 @@ export const registerUser = async (
           mobileNumber: mobile,
           password: await generatePasswordHash(password),
           id: v4(),
+          __t: type,
         });
 
         await newUser.save();
@@ -44,16 +39,19 @@ export const registerUser = async (
         });
         return {
           token,
+          userId: newUser.id,
+          mobile: newUser.mobileNumber,
           success: true,
           message: "ثبت نام با موفقیت انجام شد",
           error: null,
         };
+      } else {
+        return {
+          success: false,
+          message: "اطلاعات کاربر وارد شده تکراری می باشد",
+          error: null,
+        };
       }
-      return {
-        success: false,
-        message: "اطلاعات کاربر وارد شده تکراری می باشد",
-        error: null,
-      };
     }
   } catch (error) {
     console.error("[AUTH_ACTION_REGISTER]=> " + error);
@@ -87,6 +85,13 @@ export const loginUser = async (mobile, password) => {
           error: null,
         };
       }
+    } else {
+      return {
+        data: "",
+        success: false,
+        message: "رمز عبور یا نام کاربری اشتباه است",
+        error: null,
+      };
     }
   } catch (error) {
     console.error("[AUTH_ACTION_LOGIN]=> " + error);

@@ -3,11 +3,19 @@ import { loginUser, registerUser } from "./auth.action.js";
 
 export const registerUserHandler = async (req, res) => {
   try {
-    const token = await registerUser(req?.body?.mobile, req?.body?.password);
-
+    const token = await registerUser(
+      req?.body?.mobile,
+      req?.body?.password,
+      req?.body?.__t
+    );
+    console.log("pass is "+req?.body?.password);
     if (token.success) {
       res.status(200).setHeader("Authorization", `Bearer ${token}`).json({
-        data: token.token,
+        data: {
+            token: token.token,
+            userId: token.userId,
+            mobile: token.mobile,
+          },
         error: token.error,
         ok: token.success,
         message: token.message,
@@ -17,7 +25,7 @@ export const registerUserHandler = async (req, res) => {
         data: null,
         error: null,
         ok: false,
-        message: "در ثبت نام کاربر مشکلی پیش آمده است",
+        message: token.message,
       });
     }
   } catch (error) {
@@ -33,11 +41,7 @@ export const registerUserHandler = async (req, res) => {
 
 export const loginUserHandler = async (req, res) => {
   try {
-    const user = await loginUser(
-      req?.body?.data.mobile,
-      req?.body?.data.password
-    );
-
+    const user = await loginUser(req?.body?.mobile, req?.body?.password);
     if (user.success) {
       res
         .cookie(
@@ -70,7 +74,7 @@ export const loginUserHandler = async (req, res) => {
         data: null,
         error: null,
         ok: false,
-        message: "در ورود کاربر مشکلی پیش آمده است",
+        message: "رمز عبور یا نام کاربری اشتباه است",
       });
     }
   } catch (error) {
