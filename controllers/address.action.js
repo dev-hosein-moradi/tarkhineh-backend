@@ -63,6 +63,7 @@ export const GETBYID = async (id) => {
 export const POST = async (data) => {
   try {
     const newAddress = new AddressModel(data);
+    console.log("action" + newAddress);
     await newAddress.save();
     return {
       newAddress,

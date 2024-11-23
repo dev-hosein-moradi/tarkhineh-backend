@@ -1,5 +1,12 @@
 import { cache } from "../helpers/cache.js";
-import { DELETE, GET, GETBYID, PATCH, POST } from "./order.action.js";
+import {
+  DELETE,
+  GET,
+  GETBYID,
+  GETBYUSER,
+  PATCH,
+  POST,
+} from "./order.action.js";
 
 export const getOrdersHandler = async (req, res) => {
   try {
@@ -37,8 +44,9 @@ export const getOrdersHandler = async (req, res) => {
 
 export const getOrdersByUserHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const orders = await GET();
+    const { userId } = req.query;
+    console.log(userId);
+    const orders = await GETBYUSER(userId);
     // if (reqId) {
     //   cache.set(reqId, orders);
     // }

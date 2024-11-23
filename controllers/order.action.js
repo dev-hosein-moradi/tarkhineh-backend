@@ -21,6 +21,25 @@ export const GET = async () => {
   }
 };
 
+export const GETBYUSER = async (id) => {
+  try {
+    const orders = await OrderModel.find({userId: id});
+    return {
+      orders,
+      success: true,
+      message: "دریافت موفقیت آمیز",
+      error: null,
+    };
+  } catch (error) {
+    console.error("[ORDERS_ACTION_GET]");
+    return {
+      success: false,
+      message: "خطا",
+      error: error,
+    };
+  }
+};
+
 export const GETBYID = async (id) => {
   try {
     const order = await OrderModel.findOne({ id: id });

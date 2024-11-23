@@ -110,17 +110,16 @@ export const getAddressHandler = async (req, res) => {
 
 export const addAddressHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
+    // if (req.authData.userType !== "admin") {
+    //   console.log("here 2");
+    //   return res.status(403).json({
+    //     data: null,
+    //     error: "access denied",
+    //     message: "شما مجوز لازم برای انجام این عملیات را ندارید",
+    //     ok: false,
+    //   });
+    // }
     const address = await POST(req.body);
-
     if (address.success) {
       res.status(200).json({
         data: address.newAddress,
