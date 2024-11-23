@@ -13,8 +13,8 @@
   "type": "module",
   "module": "es6",
   "dependencies": {
-    "argon2": "^0.40.3",
-    "cloudinary": "^2.4.0",
+    "argon2": "^0.41.1",
+    "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
@@ -22,16 +22,16 @@
     "express": "^4.19.2",
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.8.0",
-    "mongoose": "^8.5.2",
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.2",
     "morgan": "^1.10.0",
     "nanoid": "^5.0.8",
     "node-cache": "^5.1.2",
-    "nodemon": "^3.1.4",
+    "nodemon": "^3.1.7",
     "path": "^0.12.7",
     "swagger-autogen": "^2.23.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.3"
   }
 }

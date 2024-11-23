@@ -1,12 +1,11 @@
-import http from "http";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import morgan from "morgan";
 import dotenv from "dotenv";
 import cors from "cors";
-import swaggerUI from "swagger-ui-express";
-import swaggerDoc from "./utils/swagger_output.json" assert { type: "json" };
+// import swaggerUI from "swagger-ui-express";
+// import swaggerDoc from "./utils/swagger_output.json" assert { type: "json" };
 
 import addUserRouter from "./routes/users.route.js";
 import addAuthRouter from "./routes/auth.route.js";
@@ -55,7 +54,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello from Vercel!" });
 });
 
-app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
+// app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
 app.listen(process.env.PORT || 4000, () => {
   console.log(`runnig on port => ${process.env.PORT || 4000}`);
 });

@@ -14,9 +14,9 @@ const foodRouter = Router();
 // public route
 foodRouter.get("/api/addresses", getAddressesByUserHandler);
 foodRouter.get("/api/address/:id", getAddressHandler);
-foodRouter.post("/api/address", authenticateToken, addAddressHandler);
-foodRouter.patch("/api/address", authenticateToken, updateAddressHandler);
-foodRouter.delete("/api/address/:id", authenticateToken, deleteAddressHandler);
+foodRouter.post("/api/address", addAddressHandler);
+foodRouter.patch("/api/address", updateAddressHandler);
+foodRouter.delete("/api/address/:id", deleteAddressHandler);
 
 // for admin
 foodRouter.get("/admin/addresses", getAddressesHandler);
