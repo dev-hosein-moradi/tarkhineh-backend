@@ -9,7 +9,8 @@ const expireRefresh = process.env.REFRESH_TOKEN_EXPIRE_TIME;
 
 export const generateToken = (data) => {
   try {
-    return jwt.sign(data, secret, { expiresIn: `${expireAccess}` });
+    const token = jwt.sign(data, secret, { expiresIn: `${expireAccess}` });
+    return token;
   } catch (err) {
     console.error("[TOKEN_GENERATE] =>", err);
     throw err;
@@ -50,7 +51,7 @@ export const authenticateToken = (req, res, next) => {
         });
       }
       console.log(authData);
-      
+
       req.authData = authData;
       next();
     });

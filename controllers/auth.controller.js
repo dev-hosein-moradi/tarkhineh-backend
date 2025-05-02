@@ -1,4 +1,4 @@
-import { refreshToken } from "../utils/jwt.js";
+import { generateToken, refreshToken } from "../utils/jwt.js";
 import { loginUser, registerUser } from "./auth.action.js";
 
 export const registerUserHandler = async (req, res) => {
@@ -47,21 +47,16 @@ export const loginUserHandler = async (req, res) => {
     const user = await loginUser(req?.body?.mobile, req?.body?.password);
     if (user.success) {
       res
-        .cookie(
-          "refreshToken",
-          refreshToken({
-            id: user.token.id,
-            email: user.token.email,
-            mobileNumber: user.token.mobileNumber,
-            userType: user.token.__t,
-          }),
-          {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 1000 * 60 * 60 * 24,
-          }
-        )
+        .cookie("authToken", user.token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "None" : "None",
+          maxAge: 1000 * 60 * 60 * 24,
+          domain:
+            process.env.NODE_ENV === "production"
+              ? "tarkhineh-backend.vercel.app"
+              : "localhost",
+        })
         .setHeader("Authorization", `Bearer ${user.token}`)
         .status(200)
         .json({

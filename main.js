@@ -16,6 +16,7 @@ import addCategoryRouter from "./routes/category.route.js";
 import addAddressRouter from "./routes/address.route.js";
 import addOrderRouter from "./routes/order.route.js";
 import addDateRouter from "./routes/date.route.js";
+import cookieParser from "cookie-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,9 +28,9 @@ const app = express();
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://tarkhineh-theta.vercel.app"],
-    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"], // Use an array for methods
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+    credentials: true, // Allow credentials (cookies)
   })
 );
 
@@ -38,6 +39,7 @@ app.options("*", cors());
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.static(path.join(".", "public")));
+app.use(cookieParser());
 
 // routes
 addAuthRouter(app);
