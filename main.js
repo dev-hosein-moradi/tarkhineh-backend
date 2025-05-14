@@ -53,7 +53,7 @@ addOrderRouter(app);
 addDateRouter(app);
 
 app.get("/", (req, res) => {
-  res.json({ message: "Hello from Vercel!" });
+  res.json({ message: "Hello!" });
 });
 
 // app.use("/docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
