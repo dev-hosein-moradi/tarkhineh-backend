@@ -1,115 +1,146 @@
-import { generateToken, refreshToken } from "../utils/jwt.js";
+import { validationResult } from "express-validator";
 import { loginUser, registerUser } from "./auth.action.js";
+import { verifyRefreshToken, generateToken } from "../utils/jwt.js";
 
-export const registerUserHandler = async (req, res) => {
+const handleValidationErrors = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      ok: false,
+      message: "خطا در ورودی‌ها",
+      errors: errors.array().map((err) => err.msg),
+    });
+  }
+  return null;
+};
+
+export const registerUserHandler = async (req, res, next) => {
   try {
-    const token = await registerUser(
-      req?.body?.mobile,
-      req?.body?.password,
-      req?.body?.__t
-    );
-    console.log("pass is " + req?.body?.password);
-    if (token.success) {
-      res
-        .status(200)
-        .setHeader("Authorization", `Bearer ${token}`)
-        .json({
-          data: {
-            token: token.token,
-            userId: token.userId,
-            mobile: token.mobile,
-          },
-          error: token.error,
-          ok: token.success,
-          message: token.message,
-        });
-    } else {
-      res.status(400).json({
-        data: null,
+    const validationErrorResponse = handleValidationErrors(req, res);
+    if (validationErrorResponse) return validationErrorResponse;
+
+    const { mobile, password, type } = req.body;
+    const result = await registerUser(mobile, password, type);
+
+    if (result.success) {
+      return res.status(201).json({
+        ok: true,
+        message: result.message,
+        data: {
+          token: result.token,
+          userId: result.userId,
+          mobile: result.mobile,
+        },
         error: null,
-        ok: false,
-        message: token.message,
       });
     }
-  } catch (error) {
-    console.error("[AUTH_REGISTER]=> " + error);
-    res.status(500).json({
-      data: null,
-      error: error,
+
+    return res.status(400).json({
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: result.message || "خطایی در ثبت نام رخ داده است.",
+      data: null,
+      error: result.error || null,
     });
+  } catch (error) {
+    console.error("[AUTH_REGISTER HANDLER ERROR]:", error);
+    next(error);
   }
 };
 
-export const loginUserHandler = async (req, res) => {
+export const loginUserHandler = async (req, res, next) => {
   try {
-    const user = await loginUser(req?.body?.mobile, req?.body?.password);
-    if (user.success) {
-      res
-        .cookie("authToken", user.token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "None" : "None",
-          maxAge: 1000 * 60 * 60 * 24,
-          domain:
-            process.env.NODE_ENV === "production"
-              ? "tarkhineh-backend.vercel.app"
-              : "localhost",
-        })
-        .setHeader("Authorization", `Bearer ${user.token}`)
-        .status(200)
-        .json({
-          data: {
-            token: user.token,
-            userId: user.userId,
-            mobile: user.mobile,
-          },
-          error: user.error,
-          ok: user.success,
-          message: user.message,
-        });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: null,
-        ok: false,
-        message: "رمز عبور یا نام کاربری اشتباه است",
-      });
-    }
-  } catch (error) {
-    console.error("[AUTH_LOGIN]=> " + error);
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
-  }
-};
+    const validationErrorResponse = handleValidationErrors(req, res);
+    if (validationErrorResponse) return validationErrorResponse;
 
-export const logoutUserHandler = async (req, res) => {
-  try {
-    res
-      .cookie("refreshToken", "", {
+    const { mobile, password } = req.body;
+    const result = await loginUser(mobile, password);
+
+    if (result.success) {
+      res.cookie("authToken", result.token, {
         httpOnly: true,
-        expires: new Date(0),
-        sameSite: "lax",
-      })
-      .status(200)
-      .json({
-        data: null,
-        error: false,
-        ok: false,
-        message: "Logged out successfully",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+        maxAge: 24 * 60 * 60 * 1000, // 1 روز
+        domain:
+          process.env.NODE_ENV === "production"
+            ? "tarkhineh.hosseinmoradi.ir"
+            : "localhost",
       });
-  } catch (error) {
-    console.error("[AUTH_LOGOUT]=> " + error);
-    res.status(500).json({
-      data: null,
-      error: error,
+
+      return res.status(200).json({
+        ok: true,
+        message: result.message,
+        data: {
+          token: result.token,
+          userId: result.userId,
+          mobile: result.mobile,
+        },
+        error: null,
+      });
+    }
+
+    return res.status(401).json({
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: result.message || "نام کاربری یا رمز عبور اشتباه است.",
+      data: null,
+      error: result.error || null,
     });
+  } catch (error) {
+    console.error("[AUTH_LOGIN HANDLER ERROR]:", error);
+    next(error);
+  }
+};
+
+export const logoutUserHandler = async (req, res, next) => {
+  try {
+    res.clearCookie("authToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      domain:
+        process.env.NODE_ENV === "production"
+          ? "tarkhineh.hosseinmoradi.ir"
+          : "localhost",
+    });
+
+    return res.status(200).json({
+      ok: true,
+      message: "خروج با موفقیت انجام شد.",
+      data: null,
+      error: null,
+    });
+  } catch (error) {
+    console.error("[AUTH_LOGOUT HANDLER ERROR]:", error);
+    next(error);
+  }
+};
+
+export const refreshTokenHandler = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      return res.status(401).json({
+        ok: false,
+        message: "توکن ریفرش ارسال نشده است.",
+      });
+    }
+
+    const userData = verifyRefreshToken(refreshToken);
+
+    const newAccessToken = generateToken({
+      id: userData.id,
+      email: userData.email,
+      mobileNumber: userData.mobileNumber,
+      userType: userData.userType,
+    });
+
+    return res.status(200).json({
+      ok: true,
+      token: newAccessToken,
+      message: "توکن جدید صادر شد.",
+    });
+  } catch (error) {
+    console.error("[AUTH_REFRESH_TOKEN HANDLER ERROR]:", error);
+    next(error);
   }
 };

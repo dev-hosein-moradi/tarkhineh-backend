@@ -1,125 +1,161 @@
-import models from "../models/index.js";
+import { prisma } from "../utils/prisma.js";
 
-const { OrderModel } = models;
+const orderFields = {
+  id: true,
+  userId: true,
+  code: true,
+  status: true,
+  userAddress: true,
+  price: true,
+  discount: true,
+  time: true,
+  deliverType: true,
+  paymentType: true,
+  branchId: true,
+  createdAt: true,
+};
 
 export const GET = async () => {
   try {
-    const orders = await OrderModel.find();
+    const orders = await prisma.order.findMany({
+      select: orderFields,
+      orderBy: { createdAt: "desc" },
+    });
     return {
-      orders,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: orders,
+      message: "لیست سفارشات با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[ORDERS_ACTION_GET]");
+    console.error("[ORDER_GET_ALL_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت لیست سفارشات",
+      error: error.message,
     };
   }
 };
 
-export const GETBYUSER = async (id) => {
+export const GETBYUSER = async (userId) => {
   try {
-    const orders = await OrderModel.find({userId: id});
+    const orders = await prisma.order.findMany({
+      where: { userId },
+      select: orderFields,
+      orderBy: { createdAt: "desc" },
+    });
     return {
-      orders,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: orders,
+      message: "سفارشات کاربر با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[ORDERS_ACTION_GET]");
+    console.error("[ORDER_GET_BY_USER_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت سفارشات کاربر",
+      error: error.message,
     };
   }
 };
 
-export const GETBYID = async (id) => {
+export const GETBYID = async (orderId) => {
   try {
-    const order = await OrderModel.findOne({ id: id });
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: orderFields,
+    });
+
+    if (!order) {
+      return {
+        success: false,
+        message: "سفارش مورد نظر یافت نشد",
+        error: { code: "P2025" },
+      };
+    }
+
     return {
-      order,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: order,
+      message: "اطلاعات سفارش با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[ORDER_ACTION_GETBYID]", error);
+    console.error("[ORDER_GET_BY_ID_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت اطلاعات سفارش",
+      error: error.message,
     };
   }
 };
 
-export const POST = async (data) => {
+export const POST = async (orderData) => {
   try {
-    const newOrder = new OrderModel(data);
-    console.log(newOrder);
+    const newOrder = await prisma.order.create({
+      data: {
+        ...orderData,
+        foods: orderData.foods || [],
+        status: "ONE", // Default status
+        deliverType: orderData.deliverType || "ONE",
+        paymentType: orderData.paymentType || "ONE",
+      },
+      select: orderFields,
+    });
 
-    await newOrder.save();
     return {
-      newOrder: newOrder.code,
       success: true,
-      message: "سفارش با موفقیت ایجاد شد",
-      error: null,
+      data: newOrder,
+      message: "سفارش جدید با موفقیت ثبت شد",
     };
   } catch (error) {
-    console.error("[ORDER_ACTION_POST]");
-    console.log(error);
-
+    console.error("[ORDER_CREATE_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در ثبت سفارش جدید",
+      error: error.message,
     };
   }
 };
 
-export const PATCH = async (data) => {
+export const PATCH = async ({ id, status }) => {
   try {
-    const updated = await OrderModel.findOneAndUpdate(
-      { id: data.id },
-      data
-    ).exec();
+    const updatedOrder = await prisma.order.update({
+      where: { id },
+      data: { status },
+      select: orderFields,
+    });
+
     return {
-      updated,
       success: true,
-      message: "سفارش با موفقیت ویرایش شد",
-      error: null,
+      data: updatedOrder,
+      message: "وضعیت سفارش با موفقیت به‌روزرسانی شد",
     };
   } catch (error) {
-    console.error("[ORDER_ACTION_PATCH]");
+    console.error("[ORDER_UPDATE_STATUS_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در به‌روزرسانی وضعیت سفارش",
+      error: error.message,
     };
   }
 };
 
-export const DELETE = async (id) => {
+export const DELETE = async (orderId) => {
   try {
-    const deleted = await OrderModel.findOneAndDelete({ id }).exec();
+    await prisma.order.delete({
+      where: { id: orderId },
+    });
+
     return {
-      deleted,
       success: true,
+      data: { id: orderId },
       message: "سفارش با موفقیت حذف شد",
-      error: null,
     };
   } catch (error) {
-    console.error("[ORDER_ACTION_DELETE]");
+    console.error("[ORDER_DELETE_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در حذف سفارش",
+      error: error.message,
     };
   }
 };

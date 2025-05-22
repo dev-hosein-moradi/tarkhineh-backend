@@ -1,187 +1,113 @@
-import { cache } from "../helpers/cache.js";
-import { DELETE, GET, GETBYID, PATCH, POST } from "./category.action.js";
+import {
+  GET,
+  GETBYID,
+  POST,
+  PATCH,
+  DELETE,
+} from "../actions/category.action.js";
+
+const handleResponse = (res, result, successStatus = 200) => {
+  const response = {
+    ok: result.success,
+    data: result.data,
+    message: result.message,
+    error: result.error || null,
+  };
+  res
+    .status(
+      result.success
+        ? successStatus
+        : result.error?.code === "P2025"
+        ? 404
+        : 400
+    )
+    .json(response);
+};
 
 export const getCategoriesHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const categories = await GET();
-    // if (reqId) {
-    //   cache.set(reqId, categories);
-    // }
-
-    if (categories.success) {
-      res.status(200).json({
-        data: categories.categories,
-        error: categories.error,
-        ok: categories.success,
-        message: categories.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در دریافت دسته بندی ها مشکلی پیش آمده است",
-      });
-    }
+    const result = await GET();
+    handleResponse(res, result);
   } catch (error) {
-    console.error("[CATEGORY_CONTROLLER_GETALL]");
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "خطای سرور در دریافت دسته‌بندی‌ها",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const getCategoryHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const category = await GETBYID(req.params.id);
-    // if (reqId) {
-    //   cache.set(reqId, category);
-    // }
-
-    if (category.success) {
-      res.status(200).json({
-        data: category.category,
-        error: category.error,
-        ok: category.success,
-        message: category.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در دریافت دسته بندی مشکلی پیش آمده است",
-      });
-    }
+    const result = await GETBYID(req.params.id);
+    handleResponse(res, result);
   } catch (error) {
-    console.error("[CATEGORY_CONTROLLER_GET]");
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "خطای سرور در دریافت دسته‌بندی",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const addCategoryHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const category = await POST(req.body);
-
-    if (category.success) {
-      res.status(200).json({
-        data: category.newCategory,
-        error: category.error,
-        ok: category.success,
-        message: category.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در ایجاد دسته بندی مشکلی پیش آمده است",
-      });
-    }
+    const result = await POST(req.body);
+    handleResponse(res, result, 201);
   } catch (error) {
-    console.error("[CATEGORY_CONTROLLER_POST]");
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "خطای سرور در ایجاد دسته‌بندی",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const updateCategoryHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const category = await PATCH(req.body);
-
-    if (category.success) {
-      res.status(200).json({
-        data: category.updated,
-        error: category.error,
-        ok: category.success,
-        message: category.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در ویرایش دسته بندی مشکلی پیش آمده است",
-      });
-    }
-  } catch (error) {
-    console.error("[CATEGORY_CONTROLLER_GETALL]");
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+    const result = await PATCH({
+      id: req.params.id,
+      ...req.body,
     });
+    handleResponse(res, result);
+  } catch (error) {
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "خطای سرور در به‌روزرسانی دسته‌بندی",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const deleteCategoryHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const category = await DELETE(req.body);
-
-    if (category.success) {
-      res.status(200).json({
-        data: category.deleted,
-        error: category.error,
-        ok: category.success,
-        message: category.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در حذف دسته بندی مشکلی پیش آمده است",
-      });
-    }
+    const result = await DELETE(req.params.id);
+    handleResponse(res, result);
   } catch (error) {
-    console.error("[CATEGORY_CONTROLLER_GETALL]");
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "خطای سرور در حذف دسته‌بندی",
+        error: error.message,
+      },
+      500
+    );
   }
 };

@@ -1,10 +1,8 @@
-import models from "../models/index.js";
-
-const { AddressModel } = models;
+import prisma from "../utils/prisma.js";
 
 export const GET = async () => {
   try {
-    const addresses = await AddressModel.find();
+    const addresses = await prisma.address.findMany();
     return {
       addresses,
       success: true,
@@ -12,19 +10,20 @@ export const GET = async () => {
       error: null,
     };
   } catch (error) {
-    console.error("[ADDRESS_ACTION_GET]");
+    console.error("[ADDRESS_ACTION_GET]", error);
     return {
       success: false,
       message: "خطا",
-      error: error,
+      error,
     };
   }
 };
 
-export const GETBYUSER = async (id) => {
+export const GETBYUSER = async (userId) => {
   try {
-    const addresses = await AddressModel.find({ userId: id });
-
+    const addresses = await prisma.address.findMany({
+      where: { userId },
+    });
     return {
       addresses,
       success: true,
@@ -32,18 +31,20 @@ export const GETBYUSER = async (id) => {
       error: null,
     };
   } catch (error) {
-    console.error("[ADDRESS_ACTION_GET]");
+    console.error("[ADDRESS_ACTION_GETBYUSER]", error);
     return {
       success: false,
       message: "خطا",
-      error: error,
+      error,
     };
   }
 };
 
 export const GETBYID = async (id) => {
   try {
-    const address = await AddressModel.findOne({ id: id });
+    const address = await prisma.address.findUnique({
+      where: { id },
+    });
     return {
       address,
       success: true,
@@ -55,16 +56,16 @@ export const GETBYID = async (id) => {
     return {
       success: false,
       message: "خطا",
-      error: error,
+      error,
     };
   }
 };
 
 export const POST = async (data) => {
   try {
-    const newAddress = new AddressModel(data);
-    console.log("action" + newAddress);
-    await newAddress.save();
+    const newAddress = await prisma.address.create({
+      data,
+    });
     return {
       newAddress,
       success: true,
@@ -72,21 +73,21 @@ export const POST = async (data) => {
       error: null,
     };
   } catch (error) {
-    console.error("[ADDRESS_ACTION_POST]");
+    console.error("[ADDRESS_ACTION_POST]", error);
     return {
       success: false,
       message: "خطا",
-      error: error,
+      error,
     };
   }
 };
 
 export const PATCH = async (data) => {
   try {
-    const updated = await AddressModel.findOneAndUpdate(
-      { id: data.id },
-      data
-    ).exec();
+    const updated = await prisma.address.update({
+      where: { id: data.id },
+      data,
+    });
     return {
       updated,
       success: true,
@@ -94,18 +95,20 @@ export const PATCH = async (data) => {
       error: null,
     };
   } catch (error) {
-    console.error("[ADDRESS_ACTION_PATCH]");
+    console.error("[ADDRESS_ACTION_PATCH]", error);
     return {
       success: false,
       message: "خطا",
-      error: error,
+      error,
     };
   }
 };
 
 export const DELETE = async (id) => {
   try {
-    const deleted = await AddressModel.findOneAndDelete({ id }).exec();
+    const deleted = await prisma.address.delete({
+      where: { id },
+    });
     return {
       deleted,
       success: true,
@@ -113,11 +116,11 @@ export const DELETE = async (id) => {
       error: null,
     };
   } catch (error) {
-    console.error("[ADDRESS_ACTION_DELETE]");
+    console.error("[ADDRESS_ACTION_DELETE]", error);
     return {
       success: false,
       message: "خطا",
-      error: error,
+      error,
     };
   }
 };

@@ -1,62 +1,94 @@
-import { mongoose_client } from "../utils/mongo.js";
+import { Sequelize, DataTypes, Model } from "sequelize";
+import { v4 as uuidv4 } from "uuid";
 import { generatePasswordHash } from "../helpers/hash.js";
-import { v4 } from "uuid";
 
-const Schema = mongoose_client.Schema;
-const options = { discriminatorKey: "kind" };
-
-const UserSchema = new Schema({
-  id: {
-    type: String,
-    required: true,
-  },
-  firstName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-  },
-  mobileNumber: {
-    type: String,
-    required: true,
-  },
-  __t: {
-    type: String,
-    required: true,
-  },
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+  logging: false,
 });
 
-const UserModel = mongoose_client.model("user", UserSchema);
+class User extends Model {}
 
-const AdminModel = UserModel.discriminator("admin", new Schema({}));
+User.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: () => uuidv4(),
+      primaryKey: true,
+      allowNull: false,
+    },
+    firstName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "",
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      unique: true,
+      validate: {
+        isEmail: true,
+      },
+    },
+    mobileNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    type: {
+      type: DataTypes.ENUM("user", "admin"),
+      allowNull: false,
+      defaultValue: "user",
+    },
+  },
+  {
+    sequelize,
+    modelName: "User",
+    tableName: "users",
+    timestamps: true,
+    hooks: {
+      beforeCreate: async (user) => {
+        user.password = await generatePasswordHash(user.password);
+      },
+      beforeUpdate: async (user) => {
+        if (user.changed("password")) {
+          user.password = await generatePasswordHash(user.password);
+        }
+      },
+    },
+  }
+);
 
 export const seedAdmin = async () => {
-  const admin = await AdminModel.findOne({
-    mobileNumber: "09025197379",
-  }).exec();
-  if (!admin) {
-    const adminData = new AdminModel({
-      firstName: "admin",
-      lastName: "admin",
-      id: v4(),
-      password: await generatePasswordHash("Aa123456"),
-      email: "admin@gmail.com",
-      mobileNumber: "09025197379",
-    });
-    await adminData.save();
-    console.log("admin added");
-  } else {
-    console.log("admin exists => ", admin);
+  try {
+    const adminMobile = "09025197379";
+    const adminExists = await User.findOne({ where: { mobileNumber: adminMobile } });
+
+    if (!adminExists) {
+      await User.create({
+        firstName: "admin",
+        lastName: "admin",
+        email: "admin@gmail.com",
+        mobileNumber: adminMobile,
+        password: "Aa123456", // hashed automatically
+        type: "admin",
+      });
+      console.log("Admin user created");
+    } else {
+      console.log("Admin user already exists");
+    }
+  } catch (error) {
+    console.error("[SEED_ADMIN_ERROR]", error);
   }
 };
 
-export const USER_MODELS = {
-  UserModel,
-};
+export { User, sequelize };

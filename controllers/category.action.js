@@ -1,102 +1,141 @@
-import models from "../models/index.js";
+import prisma from "../utils/prisma.js";
 
-const { CategoryModel } = models;
+const categorySelectFields = {
+  id: true,
+  name: true,
+  title: true,
+  image: true,
+  createdAt: true,
+};
 
 export const GET = async () => {
   try {
-    const categories = await CategoryModel.find();
+    const categories = await prisma.category.findMany({
+      select: categorySelectFields,
+      orderBy: { createdAt: "desc" },
+    });
     return {
-      categories,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: categories,
+      message: "لیست دسته‌بندی‌ها با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[CATEGORY_ACTION_GET]");
+    console.error("[CATEGORY_GET_ALL_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت لیست دسته‌بندی‌ها",
+      error: error.message,
     };
   }
 };
 
 export const GETBYID = async (id) => {
   try {
-    const category = await CategoryModel.findOne({ id: id });
+    const category = await prisma.category.findUnique({
+      where: { id },
+      select: categorySelectFields,
+    });
+
+    if (!category) {
+      return {
+        success: false,
+        message: "دسته‌بندی مورد نظر یافت نشد",
+        error: { code: "P2025" },
+      };
+    }
+
     return {
-      category,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: category,
+      message: "اطلاعات دسته‌بندی با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[CATEGORY_ACTION_GETBYID]");
+    console.error("[CATEGORY_GET_BY_ID_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت اطلاعات دسته‌بندی",
+      error: error.message,
     };
   }
 };
 
 export const POST = async (data) => {
   try {
-    const newCategory = new CategoryModel(data);
-    await newCategory.save();
+    if (!data.name || !data.title) {
+      return {
+        success: false,
+        message: "نام و عنوان دسته‌بندی الزامی است",
+        error: "ValidationError",
+      };
+    }
+
+    const newCategory = await prisma.category.create({
+      data: {
+        name: data.name,
+        title: data.title,
+        image: data.image || "",
+      },
+      select: categorySelectFields,
+    });
+
     return {
-      newCategory,
       success: true,
-      message: "ثبت دسته بندی با موفقیت انجام شد",
-      error: null,
+      data: newCategory,
+      message: "دسته‌بندی جدید با موفقیت ایجاد شد",
     };
   } catch (error) {
-    console.error("[CATEGORY_ACTION_POST]");
+    console.error("[CATEGORY_CREATE_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در ایجاد دسته‌بندی جدید",
+      error: error.message,
     };
   }
 };
 
-export const PATCH = async (data) => {
+export const PATCH = async ({ id, ...data }) => {
   try {
-    const updated = await CategoryModel.findOneAndUpdate(
-      { id: data.id },
-      data
-    ).exec();
+    const updated = await prisma.category.update({
+      where: { id },
+      data: {
+        name: data.name,
+        title: data.title,
+        image: data.image,
+      },
+      select: categorySelectFields,
+    });
+
     return {
-      updated,
       success: true,
-      message: "ویرایش دسته بندی با موفقیت انجام شد",
-      error: null,
+      data: updated,
+      message: "دسته‌بندی با موفقیت به‌روزرسانی شد",
     };
   } catch (error) {
-    console.error("[CATEGORY_ACTION_PATCH]");
+    console.error("[CATEGORY_UPDATE_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در به‌روزرسانی دسته‌بندی",
+      error: error.message,
     };
   }
 };
 
 export const DELETE = async (id) => {
   try {
-    const deleted = await CategoryModel.findOneAndDelete({ id }).exec();
+    await prisma.category.delete({
+      where: { id },
+    });
     return {
-      deleted,
       success: true,
-      message: "حذف دسته بندی با موفقیت انجام شد",
-      error: null,
+      data: { id },
+      message: "دسته‌بندی با موفقیت حذف شد",
     };
   } catch (error) {
-    console.error("[CATEGORY_ACTION_DELETE]");
+    console.error("[CATEGORY_DELETE_ERROR]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در حذف دسته‌بندی",
+      error: error.message,
     };
   }
 };

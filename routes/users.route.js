@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateToken } from "../utils/jwt.js";
+import { authenticateToken, requireAdmin } from "../middlewares/auth.middleware.js";
 import {
   addUserHandler,
   deleteUserHandler,
@@ -10,13 +10,11 @@ import {
 
 const userRouter = Router();
 
-// protected route
-userRouter.get("/admin/users", authenticateToken, getUsersHandler);
-userRouter.get("/admin/user/:id", authenticateToken, getUserHandler);
-userRouter.post("/admin/user", authenticateToken, addUserHandler);
-userRouter.patch("/admin/user", authenticateToken, updateUserHandler);
-userRouter.delete("/admin/user", authenticateToken, deleteUserHandler);
+// Admin routes
+userRouter.get("/users", authenticateToken, requireAdmin, getUsersHandler);
+userRouter.get("/users/:id", authenticateToken, requireAdmin, getUserHandler);
+userRouter.post("/users", authenticateToken, requireAdmin, addUserHandler);
+userRouter.patch("/users/:id", authenticateToken, requireAdmin, updateUserHandler);
+userRouter.delete("/users/:id", authenticateToken, requireAdmin, deleteUserHandler);
 
-export default (app) => {
-  app.use("/", userRouter);
-};
+export default userRouter;

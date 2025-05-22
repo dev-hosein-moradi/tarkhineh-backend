@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { authenticateToken } from "../utils/jwt.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middlewares/auth.middleware.js";
 import {
   addCartHandler,
   deleteCartHandler,
@@ -7,18 +10,30 @@ import {
   getCartsHandler,
   updateCartHandler,
 } from "../controllers/cart.controller.js";
-import { verifyCache } from "../helpers/cache.js";
 
-const CartRouter = Router();
-// public route
-CartRouter.get("/api/carts", verifyCache, getCartsHandler);
-CartRouter.get("/api/cart/:id", verifyCache, getCartHandler);
+const cartRouter = Router();
 
-// protected route
-CartRouter.post("/admin/cart", authenticateToken, addCartHandler);
-CartRouter.patch("/admin/cart", authenticateToken, updateCartHandler);
-CartRouter.delete("/admin/cart", authenticateToken, deleteCartHandler);
+// Customer routes
+cartRouter.get(
+  "/carts/customer/:customerId",
+  authenticateToken,
+  getCartsHandler
+);
+cartRouter.get("/carts/:id", authenticateToken, getCartHandler);
+cartRouter.post("/carts", authenticateToken, addCartHandler);
 
-export default (app) => {
-  app.use("/", CartRouter);
-};
+// Admin routes
+cartRouter.patch(
+  "/admin/carts/:id/status",
+  authenticateToken,
+  requireAdmin,
+  updateCartHandler
+);
+cartRouter.delete(
+  "/admin/carts/:id",
+  authenticateToken,
+  requireAdmin,
+  deleteCartHandler
+);
+
+export default cartRouter;

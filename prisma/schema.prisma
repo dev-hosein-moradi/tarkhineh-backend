@@ -1,0 +1,130 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  firstName    String?  @default("")
+  lastName     String?  @default("")
+  password     String
+  email        String?  @unique
+  mobileNumber String   @unique
+  type         UserType @default(user)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum UserType {
+  user
+  admin
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  code        String      @unique @default(dbgenerated("gen_random_uuid()")) // یا custom nanoid باید دستی بزنید
+  foods       Json
+  status      OrderStatus @default(ONE)
+  userAddress String?
+  price       String
+  discount    String
+  time        String
+  deliverType DeliverType @default(ONE)
+  paymentType PaymentType @default(ONE)
+  branchId    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+enum OrderStatus {
+  ONE // 1- preparation
+  TWO // 2-send
+  THREE // 3-Delivered
+  FOUR // 4-Absence of customer
+  FIVE // 5-Cancellation by the customer
+}
+
+enum DeliverType {
+  ONE // 1
+  TWO // 2
+}
+
+enum PaymentType {
+  ONE // 1
+  TWO // 2
+}
+
+model Food {
+  id                String   @id @default(uuid())
+  name              String
+  compounds         String
+  type              String
+  tag               String
+  rate              Float
+  percentOfDiscount Float
+  discountPrice     String
+  mainPrice         String
+  isFavorite        Boolean
+  numOfScore        Int
+  image             String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String
+  title String
+  image String
+}
+
+model Cart {
+  id         String     @id @default(uuid())
+  foodId     String
+  customerId String
+  deliverId  String? // اختیاری
+  branchId   String
+  price      String?
+  payment    Boolean
+  status     CartStatus @default(ONE)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+enum CartStatus {
+  ONE // "1"
+  TWO // "2"
+  THREE // "3"
+  FOUR // "4"
+}
+
+model Branch {
+  id            String   @id @default(uuid())
+  ownerFullName String?
+  ownerNatCode  String?
+  ownerPhone    String?
+  ownerState    String?
+  ownerCity     String?
+  ownerRegion   String?
+  ownerAddress  String?
+  ownerType     String?
+  placeArea     String?
+  placeAge      String?
+  verification  Boolean?
+  kitchen       Boolean?
+  parking       Boolean?
+  store         Boolean?
+  name          String
+  title         String
+  address       String
+  image         String?
+  workTime      String
+  tel           String[] @default([])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

@@ -1,20 +1,50 @@
+import validator from "validator";
+
+// می‌توانید پکیج `libphonenumber-js` برای موبایل‌های بین‌المللی هم استفاده کنید اگر نیاز بود.
+
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+// حداقل 8 کاراکتر، حداقل یک حرف کوچک، یک حرف بزرگ، یک عدد و یک کاراکتر ویژه
+
+/**
+ * اعتبارسنجی ایمیل با validator
+ * @param {string} email
+ * @returns {boolean}
+ */
 export const validateEmail = (email = "") => {
-  const re =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
+  return validator.isEmail(email.trim());
 };
 
+/**
+ * اعتبارسنجی پسورد با regex قوی‌تر
+ * @param {string} password
+ * @returns {boolean}
+ */
 export const validatePassword = (password = "") => {
-  const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-  return re.test(password);
+  return PASSWORD_REGEX.test(password);
 };
 
+/**
+ * اعتبارسنجی شماره موبایل با validator
+ * (تنظیم برای کشور ایران یا بین‌المللی)
+ * @param {string} mobileNumber
+ * @returns {boolean}
+ */
 export const validateMobileNumber = (mobileNumber = "") => {
-  const re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-  return re.test(mobileNumber);
+  // برای مثال اعتبارسنجی شماره ایران:
+  return validator.isMobilePhone(mobileNumber.trim(), "fa-IR");
+  // اگر بخواهید برای کشور دیگه یا بین‌المللی، لیست کشورها موجود است
+  // e.g. validator.isMobilePhone(mobileNumber, "any")
 };
 
-export const validateUser = (user) => {
+/**
+ * اعتبارسنجی کامل آبجکت کاربر
+ * @param {object} user
+ * @param {string} user.email
+ * @param {string} user.password
+ * @param {string} user.mobileNumber
+ * @returns {boolean}
+ */
+export const validateUser = (user = {}) => {
   return (
     validateEmail(user.email) &&
     validatePassword(user.password) &&

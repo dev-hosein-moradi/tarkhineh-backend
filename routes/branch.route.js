@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { authenticateToken } from "../utils/jwt.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/auth.middleware.js";
 import {
   addBranchsHandler,
   deleteBranchsHandler,
@@ -10,15 +13,37 @@ import {
 import { verifyCache } from "../helpers/cache.js";
 
 const BranchRouter = Router();
-// public route
-BranchRouter.get("/api/branchs", verifyCache, getBranchsHandler);
-BranchRouter.get("/api/branch/:id", verifyCache, getBranchHandler);
 
-// protected route
-BranchRouter.post("/admin/branch", authenticateToken, addBranchsHandler);
-BranchRouter.patch("/admin/branch", authenticateToken, updateBranchsHandler);
-BranchRouter.delete("/admin/branch", authenticateToken, deleteBranchsHandler);
+// Public routes (with caching)
+BranchRouter.get("/branches", verifyCache, getBranchsHandler); // Plural
+BranchRouter.get("/branches/:id", verifyCache, getBranchHandler); // Consistent naming
 
+// Protected admin routes
+BranchRouter.post(
+  "/admin/branches",
+  authenticateToken,
+  requireAdmin, // Additional admin check middleware
+  addBranchsHandler
+);
+
+BranchRouter.patch(
+  "/admin/branches/:id",
+  authenticateToken,
+  requireAdmin,
+  updateBranchsHandler
+);
+
+BranchRouter.delete(
+  "/admin/branches/:id",
+  authenticateToken,
+  requireAdmin,
+  deleteBranchsHandler
+);
+
+// Version 1: Export as middleware
 export default (app) => {
-  app.use("/", BranchRouter);
+  app.use("/api/v1", BranchRouter); // Added versioning
 };
+
+// Version 2: Alternative direct export
+// export default BranchRouter;

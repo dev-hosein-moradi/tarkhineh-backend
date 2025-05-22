@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { authenticateToken } from "../utils/jwt.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middlewares/auth.middleware.js";
 import {
   addOrderHandler,
   deleteOrderHandler,
@@ -8,22 +11,32 @@ import {
   getOrdersHandler,
   updateOrderHandler,
 } from "../controllers/order.controller.js";
-// import { verifyCache } from "../helpers/cache.js";
 
-const foodRouter = Router();
-// public route
-foodRouter.get("/api/orders", getOrdersByUserHandler);
-foodRouter.get("/api/order/:id", getOrderHandler);
-foodRouter.post("/api/order", addOrderHandler);
+const orderRouter = Router();
 
-// protected route
-foodRouter.post("/admin/order", authenticateToken, addOrderHandler);
-foodRouter.patch("/admin/order", authenticateToken, updateOrderHandler);
-foodRouter.delete("/admin/order/:id", authenticateToken, deleteOrderHandler);
+// Client routes
+orderRouter.get("/orders/user/:userId", getOrdersByUserHandler);
+orderRouter.get("/orders/:orderId", getOrderHandler);
+orderRouter.post("/orders", addOrderHandler);
 
-// for admin
-foodRouter.get("/admin/orders", getOrdersHandler);
+// Admin routes
+orderRouter.get(
+  "/admin/orders",
+  authenticateToken,
+  requireAdmin,
+  getOrdersHandler
+);
+orderRouter.patch(
+  "/admin/orders/:orderId/status",
+  authenticateToken,
+  requireAdmin,
+  updateOrderHandler
+);
+orderRouter.delete(
+  "/admin/orders/:orderId",
+  authenticateToken,
+  requireAdmin,
+  deleteOrderHandler
+);
 
-export default (app) => {
-  app.use("/", foodRouter);
-};
+export default orderRouter;

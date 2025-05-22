@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { authenticateToken } from "../utils/jwt.js";
+import { authenticateToken, requireAdmin } from "../middlewares/auth.middleware.js";
 import { verifyCache } from "../helpers/cache.js";
 import {
   addCategoryHandler,
@@ -9,24 +9,15 @@ import {
   updateCategoryHandler,
 } from "../controllers/category.controller.js";
 
-const CategoryRouter = Router();
-// public route
-CategoryRouter.get("/api/categories", verifyCache, getCategoriesHandler);
-CategoryRouter.get("/api/category/:id", verifyCache, getCategoryHandler);
+const categoryRouter = Router();
 
-// protected route
-CategoryRouter.post("/admin/category", authenticateToken, addCategoryHandler);
-CategoryRouter.patch(
-  "/admin/category",
-  authenticateToken,
-  updateCategoryHandler
-);
-CategoryRouter.delete(
-  "/admin/category",
-  authenticateToken,
-  deleteCategoryHandler
-);
+// Public routes
+categoryRouter.get("/categories", verifyCache, getCategoriesHandler);
+categoryRouter.get("/categories/:id", verifyCache, getCategoryHandler);
 
-export default (app) => {
-  app.use("/", CategoryRouter);
-};
+// Admin protected routes
+categoryRouter.post("/admin/categories", authenticateToken, requireAdmin, addCategoryHandler);
+categoryRouter.patch("/admin/categories/:id", authenticateToken, requireAdmin, updateCategoryHandler);
+categoryRouter.delete("/admin/categories/:id", authenticateToken, requireAdmin, deleteCategoryHandler);
+
+export default categoryRouter;

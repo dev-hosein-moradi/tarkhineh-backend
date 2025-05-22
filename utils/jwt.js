@@ -4,12 +4,22 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const secret = process.env.SECRET;
-const expireAccess = process.env.ACCESS_TOKEN_EXPIRE_TIME;
-const expireRefresh = process.env.REFRESH_TOKEN_EXPIRE_TIME;
+const expireAccess = process.env.ACCESS_TOKEN_EXPIRE_TIME; // مثل '1h'
+const expireRefresh = process.env.REFRESH_TOKEN_EXPIRE_TIME; // مثل '7d'
 
-export const generateToken = (data) => {
+// تبدیل jwt.verify به Promise برای async/await
+const verifyTokenAsync = (token) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret, (err, decoded) => {
+      if (err) reject(err);
+      else resolve(decoded);
+    });
+  });
+};
+
+export const generateToken = async (data) => {
   try {
-    const token = jwt.sign(data, secret, { expiresIn: `${expireAccess}` });
+    const token = await jwt.sign(data, secret, { expiresIn: expireAccess });
     return token;
   } catch (err) {
     console.error("[TOKEN_GENERATE] =>", err);
@@ -17,45 +27,55 @@ export const generateToken = (data) => {
   }
 };
 
-export const refreshToken = (data) => {
+export const refreshToken = async (data) => {
   try {
-    return jwt.sign(data, secret, { expiresIn: `${expireRefresh}` });
-  } catch (error) {
-    console.error("[TOKEN_REFRESH] =>", error);
-    throw error;
+    const token = await jwt.sign(data, secret, { expiresIn: expireRefresh });
+    return token;
+  } catch (err) {
+    console.error("[TOKEN_REFRESH] =>", err);
+    throw err;
   }
 };
 
-export const authenticateToken = (req, res, next) => {
+export const verifyRefreshToken = async (token) => {
+  try {
+    const decoded = await verifyTokenAsync(token);
+    return decoded;
+  } catch (err) {
+    throw new Error("توکن ریفرش نامعتبر است");
+  }
+};
+
+// Middleware async برای Express
+export const authenticateToken = async (req, res, next) => {
   const route = req.path;
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  token == null && res.sendStatus(401);
+  if (!token) {
+    return res.sendStatus(401); // توکن وجود ندارد
+  }
 
   try {
-    jwt.verify(token, secret, (err, authData) => {
-      if (err) {
-        res.status(403).json({
-          data: null,
-          error: err,
-          message: "احراز هویت شما ناموفق بود",
-          ok: false,
-        });
-      } else if (authData.userType != "admin" && route.startsWith("/admin/")) {
-        return res.status(403).json({
-          data: null,
-          error: "access denied",
-          message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-          ok: false,
-        });
-      }
-      console.log(authData);
+    const authData = await verifyTokenAsync(token);
 
-      req.authData = authData;
-      next();
+    if (authData.userType !== "admin" && route.startsWith("/admin/")) {
+      return res.status(403).json({
+        data: null,
+        error: "access denied",
+        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
+        ok: false,
+      });
+    }
+
+    req.authData = authData;
+    next();
+  } catch (err) {
+    return res.status(403).json({
+      data: null,
+      error: err.message,
+      message: "احراز هویت شما ناموفق بود",
+      ok: false,
     });
-  } catch (error) {
-    return res.status(400).send("Invalid Token.");
   }
 };

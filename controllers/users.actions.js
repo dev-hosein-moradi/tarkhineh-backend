@@ -1,102 +1,147 @@
-import models from "../models/index.js";
-
-const { UserModel } = models;
+import { prisma } from "../utils/prisma.js";
 
 export const GET = async () => {
   try {
-    const users = await UserModel.find();
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        mobileNumber: true,
+        type: true,
+        createdAt: true,
+      },
+    });
     return {
-      users,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: users,
+      message: "لیست کاربران با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[USER_GETALL_ACTION]=> " + error);
+    console.error("[USER_GETALL_ACTION]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت کاربران",
+      error: error.message,
     };
   }
 };
 
 export const GETBYID = async (id) => {
   try {
-    const user = await UserModel.findOne({ id: id });
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        mobileNumber: true,
+        type: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "کاربر یافت نشد",
+        error: { code: "P2025" },
+      };
+    }
     return {
-      user,
       success: true,
-      message: "دریافت موفقیت آمیز",
-      error: null,
+      data: user,
+      message: "اطلاعات کاربر با موفقیت دریافت شد",
     };
   } catch (error) {
-    console.error("[FOODS_GETBYID_ACTION]=> " + error);
+    console.error("[USER_GETBYID_ACTION]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در دریافت کاربر",
+      error: error.message,
     };
   }
 };
 
 export const POST = async (data) => {
   try {
-    const newUser = new UserModel(data);
-    await newUser.save();
+    const newUser = await prisma.user.create({
+      data: {
+        ...data,
+        type: data.type || "user",
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        mobileNumber: true,
+        type: true,
+      },
+    });
     return {
-      newUser,
       success: true,
-      message: "کاربر با موفقیت ایجاد شد",
-      error: null,
+      data: newUser,
+      message: "کاربر جدید با موفقیت ایجاد شد",
     };
   } catch (error) {
-    console.error("[FOODS_POST_ACTION]=> " + error);
+    console.error("[USER_POST_ACTION]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در ایجاد کاربر",
+      error: error.message,
     };
   }
 };
 
 export const PATCH = async (data) => {
   try {
-    const updated = await UserModel.findOneAndUpdate(
-      { id: data.id },
-      data
-    ).exec();
+    const { id, ...updateData } = data;
+    const updated = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        mobileNumber: true,
+        type: true,
+      },
+    });
     return {
-      updated,
       success: true,
-      message: "کاربر با موفقیت ویرایش شد",
-      error: null,
+      data: updated,
+      message: "اطلاعات کاربر با موفقیت به‌روزرسانی شد",
     };
   } catch (error) {
-    console.error("[FOODS_POST_ACTION]=> " + error);
+    console.error("[USER_PATCH_ACTION]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در به‌روزرسانی کاربر",
+      error: error.message,
     };
   }
 };
 
 export const DELETE = async (id) => {
   try {
-    const deleted = await UserModel.findOneAndDelete({ id }).exec();
+    await prisma.user.delete({
+      where: { id },
+    });
     return {
-      deleted,
       success: true,
+      data: { id },
       message: "کاربر با موفقیت حذف شد",
-      error: null,
     };
   } catch (error) {
-    console.error("[FOODS_POST_ACTION]=> " + error);
+    console.error("[USER_DELETE_ACTION]:", error);
     return {
       success: false,
-      message: "خطا",
-      error: error,
+      message: "خطا در حذف کاربر",
+      error: error.message,
     };
   }
 };

@@ -1,181 +1,107 @@
-import { cache } from "../helpers/cache.js";
-import { DELETE, GET, GETBYID, PATCH, POST } from "./foods.action.js";
+import { GET, GETBYID, POST, PATCH, DELETE } from "../actions/food.action.js";
+
+const handleResponse = (res, result, successStatus = 200) => {
+  const response = {
+    ok: result.success,
+    data: result.data,
+    message: result.message,
+    error: result.error || null,
+  };
+  res
+    .status(
+      result.success
+        ? successStatus
+        : result.error?.code === "P2025"
+        ? 404
+        : 400
+    )
+    .json(response);
+};
 
 export const getFoodsHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const foods = await GET();
-    // if (reqId) {
-    //   cache.set(reqId, foods);
-    // }
-
-    if (foods.success) {
-      res.status(200).json({
-        data: foods.foods,
-        error: foods.error,
-        ok: foods.success,
-        message: foods.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در دریافت محصولات مشکلی پیش آمده است",
-      });
-    }
+    const result = await GET();
+    handleResponse(res, result);
   } catch (error) {
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const getFoodHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const food = await GETBYID(req.params.id);
-    // if (reqId) {
-    //   cache.set(reqId, food);
-    // }
-    if (food.success) {
-      res.status(200).json({
-        data: food.food,
-        error: food.error,
-        ok: food.success,
-        message: food.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در دریافت محصول مشکلی پیش آمده است",
-      });
-    }
+    const result = await GETBYID(req.params.id);
+    handleResponse(res, result);
   } catch (error) {
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const addFoodHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const food = await POST(req.body);
-
-    if (food.success) {
-      res.status(200).json({
-        data: food.newFood,
-        error: food.error,
-        ok: food.success,
-        message: food.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در ایجاد محصول مشکلی پیش آمده است",
-      });
-    }
+    const result = await POST(req.body);
+    handleResponse(res, result, 201);
   } catch (error) {
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const updateFoodHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const food = await PATCH(req.body);
-
-    if (food.success) {
-      res.status(200).json({
-        data: food.updated,
-        error: food.error,
-        ok: food.success,
-        message: food.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در ویرایش محصول مشکلی پیش آمده است",
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+    const result = await PATCH({
+      id: req.params.id,
+      ...req.body,
     });
+    handleResponse(res, result);
+  } catch (error) {
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      },
+      500
+    );
   }
 };
 
 export const deleteFoodHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "access denied",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const food = await DELETE(req.body);
-
-    if (food.success) {
-      res.status(200).json({
-        data: food.deleted,
-        error: food.error,
-        ok: food.success,
-        message: food.message,
-      });
-    } else {
-      res.status(400).json({
-        data: null,
-        error: "error",
-        ok: false,
-        message: "در حذف محصول مشکلی پیش آمده است",
-      });
-    }
+    const result = await DELETE(req.params.id);
+    handleResponse(res, result);
   } catch (error) {
-    res.status(500).json({
-      data: null,
-      error: error,
-      ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
-    });
+    handleResponse(
+      res,
+      {
+        success: false,
+        message: "Internal server error",
+        error: error.message,
+      },
+      500
+    );
   }
 };

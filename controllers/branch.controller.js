@@ -1,70 +1,59 @@
-import { cache } from "../helpers/cache.js";
 import { DELETE, GET, GETBYID, PATCH, POST } from "./branch.action.js";
 
 export const getBranchsHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const branchs = await GET();
-    // if (reqId) {
-    //   cache.set(reqId, branchs);
-    // }
-    if (branchs.success) {
+    const result = await GET();  // Changed from branchs to result for clarity
+    if (result.success) {
       res.status(200).json({
-        data: branchs.branchs,
-        error: branchs.error,
-        ok: branchs.success,
-        message: branchs.message,
+        data: result.branches,  // Changed from branchs to branches (matches action return)
+        error: null,
+        ok: true,
+        message: result.message,
       });
     } else {
       res.status(400).json({
         data: null,
-        error: "error",
+        error: result.error || "خطا در دریافت اطلاعات",
         ok: false,
-        message: "در دریافت شعبه ها مشکلی پیش آمده است",
+        message: result.message || "در دریافت شعبه‌ها مشکلی پیش آمده است",
       });
     }
   } catch (error) {
-    console.error("[BRANCH_CONTROLLER_GETALL]");
+    console.error("[BRANCH_CONTROLLER_GETALL]", error);
     res.status(500).json({
       data: null,
-      error: error,
+      error: error.message,  // Return error message instead of full error
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: "خطای سرور: لطفا دوباره تلاش کنید",
     });
   }
 };
 
 export const getBranchHandler = async (req, res) => {
   try {
-    const { reqId } = req.body;
-    const branch = await GETBYID(req.params.id);
-    console.log("cnt. id is " + req.params.id);
-    
-    // if (reqId) {
-    //   cache.set(reqId, branch);
-    // }
-    if (branch.success) {
+    const result = await GETBYID(req.params.id);
+    if (result.success) {
       res.status(200).json({
-        data: branch.branch,
-        error: branch.error,
-        ok: branch.success,
-        message: branch.message,
+        data: result.branch,
+        error: null,
+        ok: true,
+        message: result.message,
       });
     } else {
-      res.status(400).json({
+      res.status(result.error?.code === 'P2025' ? 404 : 400).json({  // Handle not found
         data: null,
-        error: "error",
+        error: result.error?.message || "خطا در دریافت اطلاعات",
         ok: false,
-        message: "در دریافت شعبه مشکلی پیش آمده است",
+        message: result.message || "شعبه مورد نظر یافت نشد",
       });
     }
   } catch (error) {
-    console.error("[BRANCH_CONTROLLER_GET]");
+    console.error("[BRANCH_CONTROLLER_GET]", error);
     res.status(500).json({
       data: null,
-      error: error,
+      error: error.message,
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: "خطای سرور: لطفا دوباره تلاش کنید",
     });
   }
 };
@@ -74,36 +63,35 @@ export const addBranchsHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        error: "access denied",
+        error: "دسترسی غیرمجاز",
         message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
-    const branch = await POST(req.body);
-    if (branch.success) {
-      res.status(200).json({
-        data: branch.newBranch,
-        error: branch.error,
-        ok: branch.success,
-        message: branch.message,
+    const result = await POST(req.body);
+    if (result.success) {
+      res.status(201).json({  // Changed to 201 for resource creation
+        data: result.newBranch,
+        error: null,
+        ok: true,
+        message: result.message,
       });
     } else {
       res.status(400).json({
         data: null,
-        error: "error",
+        error: result.error?.message || "خطا در اعتبارسنجی داده‌ها",
         ok: false,
-        message: "در ثبت شعبه مشکلی پیش آمده است",
+        message: result.message || "داده‌های ارسالی نامعتبر هستند",
       });
     }
   } catch (error) {
-    console.error("[BRANCH_CONTROLLER_POST]");
+    console.error("[BRANCH_CONTROLLER_POST]", error);
     res.status(500).json({
       data: null,
-      status: 500,
-      error: error,
+      error: error.message,
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: "خطای سرور در ایجاد شعبه جدید",
     });
   }
 };
@@ -113,37 +101,36 @@ export const updateBranchsHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        error: "access denied",
+        error: "دسترسی غیرمجاز",
         message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
-    const branch = await PATCH(req.body);
-
-    if (branch.success) {
+    const result = await PATCH({ id: req.params.id, ...req.body });  // Use params.id
+    if (result.success) {
       res.status(200).json({
-        data: branch.updated,
-        error: branch.error,
-        ok: branch.success,
-        message: branch.message,
+        data: result.updated,
+        error: null,
+        ok: true,
+        message: result.message,
       });
     } else {
-      res.status(400).json({
+      const statusCode = result.error?.code === 'P2025' ? 404 : 400;
+      res.status(statusCode).json({
         data: null,
-        error: "error",
+        error: result.error?.message || "خطا در به‌روزرسانی",
         ok: false,
-        message: "در ویرایش شعبه مشکلی پیش آمده است",
+        message: result.message || "به‌روزرسانی انجام نشد",
       });
     }
   } catch (error) {
-    console.error("[BRANCH_CONTROLLER_GETALL]");
+    console.error("[BRANCH_CONTROLLER_PATCH]", error);
     res.status(500).json({
       data: null,
-      status: 500,
-      error: error,
+      error: error.message,
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: "خطای سرور در به‌روزرسانی اطلاعات",
     });
   }
 };
@@ -153,36 +140,36 @@ export const deleteBranchsHandler = async (req, res) => {
     if (req.authData.userType !== "admin") {
       return res.status(403).json({
         data: null,
-        error: "access denied",
+        error: "دسترسی غیرمجاز",
         message: "شما مجوز لازم برای انجام این عملیات را ندارید",
         ok: false,
       });
     }
 
-    const branch = await DELETE(req.body);
-
-    if (branch.success) {
+    const result = await DELETE(req.params.id);  // Use params.id instead of body
+    if (result.success) {
       res.status(200).json({
-        data: branch.deleted,
-        error: branch.error,
-        ok: branch.success,
-        message: branch.message,
+        data: result.deleted,
+        error: null,
+        ok: true,
+        message: result.message,
+      });
+    } else {
+      const statusCode = result.error?.code === 'P2025' ? 404 : 400;
+      res.status(statusCode).json({
+        data: null,
+        error: result.error?.message || "خطا در حذف",
+        ok: false,
+        message: result.message || "حذف شعبه انجام نشد",
       });
     }
-    res.status(400).json({
-      data: null,
-      error: "error",
-      ok: false,
-      message: "در حذف شعبه مشکلی پیش آمده است",
-    });
   } catch (error) {
-    console.error("[BRANCH_CONTROLLER_GETALL]");
+    console.error("[BRANCH_CONTROLLER_DELETE]", error);
     res.status(500).json({
       data: null,
-      status: 500,
-      error: error,
+      error: error.message,
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: "خطای سرور در حذف شعبه",
     });
   }
 };
