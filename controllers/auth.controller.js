@@ -1,6 +1,13 @@
 import { validationResult } from "express-validator";
 import { loginUser, registerUser } from "./auth.action.js";
 import { verifyRefreshToken, generateToken } from "../utils/jwt.js";
+import {
+  registerUser,
+  loginUser,
+  refreshAccessToken,
+  revokeToken,
+} from "../actions/auth.action.js";
+import { setAuthCookies, clearAuthCookies } from "../helpers/cookies.js";
 
 const handleValidationErrors = (req, res) => {
   const errors = validationResult(req);
@@ -14,36 +21,35 @@ const handleValidationErrors = (req, res) => {
   return null;
 };
 
-export const registerUserHandler = async (req, res, next) => {
+export const registerUserHandler = async (req, res) => {
   try {
-    const validationErrorResponse = handleValidationErrors(req, res);
-    if (validationErrorResponse) return validationErrorResponse;
+    const result = await registerUser(req.validatedData);
 
-    const { mobile, password, type } = req.body;
-    const result = await registerUser(mobile, password, type);
-
-    if (result.success) {
-      return res.status(201).json({
-        ok: true,
+    if (!result.success) {
+      return res.status(400).json({
+        ok: false,
         message: result.message,
-        data: {
-          token: result.token,
-          userId: result.userId,
-          mobile: result.mobile,
-        },
-        error: null,
+        errors: result.errors,
       });
     }
 
-    return res.status(400).json({
-      ok: false,
-      message: result.message || "خطایی در ثبت نام رخ داده است.",
-      data: null,
-      error: result.error || null,
+    setAuthCookies(res, result.tokens);
+
+    return res.status(201).json({
+      ok: true,
+      message: result.message,
+      data: {
+        userId: result.userId,
+        mobile: result.mobile,
+        type: result.type,
+      },
     });
   } catch (error) {
-    console.error("[AUTH_REGISTER HANDLER ERROR]:", error);
-    next(error);
+    console.error("[REGISTER_ERROR]:", error);
+    return res.status(500).json({
+      ok: false,
+      message: "خطای سرور در ثبت نام",
+    });
   }
 };
 

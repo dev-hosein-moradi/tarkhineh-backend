@@ -4,43 +4,29 @@ import {
   registerUserHandler,
   logoutUserHandler,
   refreshTokenHandler,
+  verifyTokenHandler,
 } from "../controllers/auth.controller.js";
-
-import { body } from "express-validator";
+import { validate } from "../middlewares/validation.middleware.js";
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+} from "../validations/auth.validation.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
 
 const authRouter = Router();
 
+// Public routes
+authRouter.post("/register", validate(registerSchema), registerUserHandler);
+authRouter.post("/login", validate(loginSchema), loginUserHandler);
+
+// Protected routes
+authRouter.post("/logout", authenticate, logoutUserHandler);
 authRouter.post(
-  "/register",
-  [
-    body("mobile").isMobilePhone("fa-IR").withMessage("شماره موبایل معتبر نیست."),
-    body("password")
-      .isLength({ min: 8 })
-      .withMessage("رمز عبور حداقل ۸ کاراکتر باشد.")
-      .matches(/[A-Z]/)
-      .withMessage("رمز عبور باید حاوی حداقل یک حرف بزرگ باشد.")
-      .matches(/[a-z]/)
-      .withMessage("رمز عبور باید حاوی حداقل یک حرف کوچک باشد.")
-      .matches(/\d/)
-      .withMessage("رمز عبور باید حاوی حداقل یک عدد باشد."),
-    body("type").optional().isIn(["user", "admin"]).withMessage("نوع کاربر نامعتبر است."),
-  ],
-  registerUserHandler
+  "/refresh-token",
+  validate(refreshTokenSchema),
+  refreshTokenHandler
 );
+authRouter.get("/verify", authenticate, verifyTokenHandler);
 
-authRouter.post(
-  "/login",
-  [
-    body("mobile").isMobilePhone("fa-IR").withMessage("شماره موبایل معتبر نیست."),
-    body("password").notEmpty().withMessage("رمز عبور نمی‌تواند خالی باشد."),
-  ],
-  loginUserHandler
-);
-
-authRouter.post("/logout", logoutUserHandler);
-
-authRouter.post("/refresh-token", refreshTokenHandler);
-
-export default (app) => {
-  app.use("/auth", authRouter);
-};
+export default authRouter;

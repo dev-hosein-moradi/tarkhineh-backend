@@ -1,110 +1,133 @@
 import prisma from "../utils/prisma.js";
-import { validateMobileNumber, validatePassword } from "../utils/validator.js";
-import { comparePasswordHash, generatePasswordHash } from "../helpers/hash.js";
-import { generateToken } from "../utils/jwt.js";
+import { generatePasswordHash, comparePasswordHash } from "../helpers/hash.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt.js";
+import { tokenBlacklist } from "../helpers/tokenBlacklist.js";
+import { RegisterInput, LoginInput } from "../validations/auth.validation.js";
 
-export const registerUser = async (
-  mobile = "",
-  password = "",
-  type = "user"
-) => {
+export const registerUser = async (data) => {
   try {
-    if (!validateMobileNumber(mobile)) {
-      return { success: false, message: "شماره موبایل وارد شده معتبر نیست." };
-    }
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { mobileNumber: data.mobile },
+    });
 
-    if (!validatePassword(password)) {
+    if (existingUser) {
       return {
         success: false,
-        message:
-          "رمز عبور باید حداقل ۸ کاراکتر، شامل حروف بزرگ، کوچک و عدد باشد.",
+        message: "این شماره موبایل قبلاً ثبت شده است",
+        errors: ["mobile_exists"],
       };
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { mobileNumber: mobile },
-    });
-    if (existingUser) {
-      return { success: false, message: "این شماره موبایل قبلاً ثبت شده است." };
-    }
-
-    const hashedPassword = await generatePasswordHash(password);
-
+    // Create new user
+    const hashedPassword = await generatePasswordHash(data.password);
     const newUser = await prisma.user.create({
       data: {
-        mobileNumber: mobile,
+        mobileNumber: data.mobile,
         password: hashedPassword,
-        type,
+        type: data.type,
+      },
+      select: {
+        id: true,
+        mobileNumber: true,
+        type: true,
+        createdAt: true,
       },
     });
 
-    const token = generateToken({
-      id: newUser.id,
-      mobileNumber: newUser.mobileNumber,
-      userType: newUser.type,
-    });
+    // Generate tokens
+    const tokens = {
+      accessToken: generateAccessToken({
+        id: newUser.id,
+        mobile: newUser.mobileNumber,
+        type: newUser.type,
+      }),
+      refreshToken: generateRefreshToken({
+        id: newUser.id,
+        mobile: newUser.mobileNumber,
+      }),
+    };
 
     return {
       success: true,
-      message: "ثبت نام با موفقیت انجام شد.",
-      token,
+      message: "ثبت نام با موفقیت انجام شد",
+      tokens,
       userId: newUser.id,
       mobile: newUser.mobileNumber,
-      error: null,
+      type: newUser.type,
     };
   } catch (error) {
-    console.error("[AUTH_ACTION_REGISTER ERROR]:", error);
+    console.error("[REGISTER_ERROR]:", error);
     return {
       success: false,
-      message:
-        "خطایی در هنگام ثبت نام رخ داده است. لطفاً بعداً دوباره تلاش کنید.",
-      error: error.message || error,
+      message: "خطا در ثبت نام کاربر",
+      errors: ["server_error"],
     };
   }
 };
 
-export const loginUser = async (mobile, password) => {
+export const loginUser = async (data) => {
   try {
-    if (!validateMobileNumber(mobile)) {
-      return { success: false, message: "شماره موبایل وارد شده معتبر نیست." };
-    }
-
-    if (!validatePassword(password)) {
-      return { success: false, message: "رمز عبور وارد شده معتبر نیست." };
-    }
-
+    // Find user
     const user = await prisma.user.findUnique({
-      where: { mobileNumber: mobile },
+      where: { mobileNumber: data.mobile },
+      select: {
+        id: true,
+        mobileNumber: true,
+        password: true,
+        type: true,
+      },
     });
+
     if (!user) {
-      return { success: false, message: "نام کاربری یا رمز عبور اشتباه است." };
+      return {
+        success: false,
+        message: "نام کاربری یا رمز عبور اشتباه است",
+        errors: ["invalid_credentials"],
+      };
     }
 
-    const isMatch = await comparePasswordHash(user.password, password);
+    // Verify password
+    const isMatch = await comparePasswordHash(user.password, data.password);
     if (!isMatch) {
-      return { success: false, message: "نام کاربری یا رمز عبور اشتباه است." };
+      return {
+        success: false,
+        message: "نام کاربری یا رمز عبور اشتباه است",
+        errors: ["invalid_credentials"],
+      };
     }
 
-    const token = generateToken({
-      id: user.id,
-      mobileNumber: user.mobileNumber,
-      userType: user.type,
-    });
+    // Generate tokens
+    const tokens = {
+      accessToken: generateAccessToken({
+        id: user.id,
+        mobile: user.mobileNumber,
+        type: user.type,
+      }),
+      refreshToken: generateRefreshToken({
+        id: user.id,
+        mobile: user.mobileNumber,
+      }),
+    };
 
     return {
       success: true,
-      message: "ورود با موفقیت انجام شد.",
-      token,
+      message: "ورود با موفقیت انجام شد",
+      tokens,
       userId: user.id,
       mobile: user.mobileNumber,
-      error: null,
+      type: user.type,
     };
   } catch (error) {
-    console.error("[AUTH_ACTION_LOGIN ERROR]:", error);
+    console.error("[LOGIN_ERROR]:", error);
     return {
       success: false,
-      message: "خطایی در هنگام ورود رخ داده است. لطفاً بعداً دوباره تلاش کنید.",
-      error: error.message || error,
+      message: "خطا در ورود کاربر",
+      errors: ["server_error"],
     };
   }
 };

@@ -128,3 +128,14 @@ model Branch {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  tel       String
+  content   String
+  isReciver Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
