@@ -6,6 +6,4 @@ const dateRouter = Router();
 // public route
 dateRouter.get("/api/date", getDateTime);
 
-export default (app) => {
-  app.use("/", dateRouter);
-};
+export default dateRouter;

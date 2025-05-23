@@ -1,5 +1,3 @@
-import { NextFunction, Request, Response } from "express";
-
 export const validate = (schema) => {
   return (req, res, next) => {
     try {

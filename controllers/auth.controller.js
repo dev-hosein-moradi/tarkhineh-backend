@@ -1,13 +1,6 @@
+import { registerUser, loginUser } from "./auth.action.js";
 import { validationResult } from "express-validator";
-import { loginUser, registerUser } from "./auth.action.js";
 import { verifyRefreshToken, generateToken } from "../utils/jwt.js";
-import {
-  registerUser,
-  loginUser,
-  refreshAccessToken,
-  revokeToken,
-} from "../actions/auth.action.js";
-import { setAuthCookies, clearAuthCookies } from "../helpers/cookies.js";
 
 const handleValidationErrors = (req, res) => {
   const errors = validationResult(req);
@@ -32,8 +25,6 @@ export const registerUserHandler = async (req, res) => {
         errors: result.errors,
       });
     }
-
-    setAuthCookies(res, result.tokens);
 
     return res.status(201).json({
       ok: true,

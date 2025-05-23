@@ -1,9 +1,5 @@
 import { Router } from "express";
 import {
-  authenticateToken,
-  requireAdmin,
-} from "../middlewares/auth.middleware.js";
-import {
   addOrderHandler,
   deleteOrderHandler,
   getOrderHandler,
@@ -11,6 +7,10 @@ import {
   getOrdersHandler,
   updateOrderHandler,
 } from "../controllers/order.controller.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/auth.middleware.js";
 
 const orderRouter = Router();
 

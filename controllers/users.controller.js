@@ -1,4 +1,4 @@
-import { GET, GETBYID, POST, PATCH, DELETE } from "../actions/users.actions.js";
+import { GET, GETBYID, POST, PATCH, DELETE } from "./users.actions.js";
 
 const handleResponse = (res, result, successStatus = 200) => {
   if (result.success) {

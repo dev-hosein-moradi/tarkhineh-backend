@@ -22,6 +22,16 @@ import { apiLimiter } from "./middleware/rateLimiter.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import logger from "./utils/logger.js";
 
+import userRouter from "./routes/users.route.js";
+import foodRouter from "./routes/food.route.js";
+import cartRouter from "./routes/cart.route.js";
+import BranchRouter from "./routes/branch.route.js";
+import categoryRouter from "./routes/category.route.js";
+import authRouter from "./routes/auth.route.js";
+import orderRouter from "./routes/order.route.js";
+import AddressRouter from "./routes/address.route.js";
+import dateRouter from "./routes/date.route.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -61,15 +71,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-addAuthRouter(app);
-addUserRouter(app);
-addFoodRouter(app);
-addBranchRouter(app);
-addCartRouter(app);
-addCategoryRouter(app);
-addAddressRouter(app);
-addOrderRouter(app);
-addDateRouter(app);
+// addAuthRouter(app);
+// addUserRouter(app);
+// addFoodRouter(app);
+// addBranchRouter(app);
+// addCartRouter(app);
+// addCategoryRouter(app);
+// addAddressRouter(app);
+// addOrderRouter(app);
+// addDateRouter(app);
+app.use("/", userRouter);
+app.use("/", foodRouter);
+app.use("/", cartRouter);
+app.use("/", BranchRouter);
+app.use("/", categoryRouter);
+app.use("/", authRouter);
+app.use("/", orderRouter);
+app.use("/", AddressRouter);
+app.use("/", dateRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Server Running Successfully." });

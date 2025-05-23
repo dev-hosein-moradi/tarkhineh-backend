@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { authenticateToken, requireAdmin } from "../middlewares/auth.middleware.js";
 import { verifyCache } from "../helpers/cache.js";
 import {
   addCategoryHandler,
@@ -8,6 +7,10 @@ import {
   getCategoryHandler,
   updateCategoryHandler,
 } from "../controllers/category.controller.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/auth.middleware.js";
 
 const categoryRouter = Router();
 
@@ -16,8 +19,21 @@ categoryRouter.get("/categories", verifyCache, getCategoriesHandler);
 categoryRouter.get("/categories/:id", verifyCache, getCategoryHandler);
 
 // Admin protected routes
-categoryRouter.post("/admin/categories", authenticateToken, requireAdmin, addCategoryHandler);
-categoryRouter.patch("/admin/categories/:id", authenticateToken, requireAdmin, updateCategoryHandler);
-categoryRouter.delete("/admin/categories/:id", authenticateToken, requireAdmin, deleteCategoryHandler);
+categoryRouter.post(
+  "/admin/categories",
+  addCategoryHandler
+);
+categoryRouter.patch(
+  "/admin/categories/:id",
+  authenticateToken,
+  requireAdmin,
+  updateCategoryHandler
+);
+categoryRouter.delete(
+  "/admin/categories/:id",
+  authenticateToken,
+  requireAdmin,
+  deleteCategoryHandler
+);
 
 export default categoryRouter;

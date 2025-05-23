@@ -1,4 +1,4 @@
-import { GET, GETBYID, POST, PATCH, DELETE } from "../actions/food.action.js";
+import { GET, GETBYID, POST, PATCH, DELETE } from "./foods.action.js";
 
 const handleResponse = (res, result, successStatus = 200) => {
   const response = {

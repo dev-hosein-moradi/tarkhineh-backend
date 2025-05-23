@@ -8,7 +8,7 @@ const expireAccess = process.env.ACCESS_TOKEN_EXPIRE_TIME; // مثل '1h'
 const expireRefresh = process.env.REFRESH_TOKEN_EXPIRE_TIME; // مثل '7d'
 
 // تبدیل jwt.verify به Promise برای async/await
-const verifyTokenAsync = (token) => {
+export const verifyTokenAsync = (token) => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secret, (err, decoded) => {
       if (err) reject(err);

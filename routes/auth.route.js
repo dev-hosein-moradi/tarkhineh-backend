@@ -4,15 +4,15 @@ import {
   registerUserHandler,
   logoutUserHandler,
   refreshTokenHandler,
-  verifyTokenHandler,
 } from "../controllers/auth.controller.js";
-import { validate } from "../middlewares/validation.middleware.js";
+
+import { authenticate } from "../middleware/auth.middleware.js";
+import { validate } from "../middleware/validation.middleware.js";
 import {
-  registerSchema,
   loginSchema,
   refreshTokenSchema,
-} from "../validations/auth.validation.js";
-import { authenticate } from "../middlewares/auth.middleware.js";
+  registerSchema,
+} from "../middleware/auth.validation.js";
 
 const authRouter = Router();
 
@@ -27,6 +27,6 @@ authRouter.post(
   validate(refreshTokenSchema),
   refreshTokenHandler
 );
-authRouter.get("/verify", authenticate, verifyTokenHandler);
+// authRouter.get("/verify", authenticate, verifyTokenHandler);
 
 export default authRouter;

@@ -1,12 +1,6 @@
 import prisma from "../utils/prisma.js";
 import { generatePasswordHash, comparePasswordHash } from "../helpers/hash.js";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshToken,
-} from "../utils/jwt.js";
-import { tokenBlacklist } from "../helpers/tokenBlacklist.js";
-import { RegisterInput, LoginInput } from "../validations/auth.validation.js";
+import { generateToken, refreshToken } from "../utils/jwt.js";
 
 export const registerUser = async (data) => {
   try {
@@ -41,12 +35,12 @@ export const registerUser = async (data) => {
 
     // Generate tokens
     const tokens = {
-      accessToken: generateAccessToken({
+      accessToken: generateToken({
         id: newUser.id,
         mobile: newUser.mobileNumber,
         type: newUser.type,
       }),
-      refreshToken: generateRefreshToken({
+      refreshToken: refreshToken({
         id: newUser.id,
         mobile: newUser.mobileNumber,
       }),

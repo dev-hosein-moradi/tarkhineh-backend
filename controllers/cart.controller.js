@@ -1,11 +1,4 @@
-import {
-  GET,
-  GETBYID,
-  GETBYCUSTOMER,
-  POST,
-  PATCH,
-  DELETE,
-} from "../actions/cart.action.js";
+import { GETBYID, GETBYCUSTOMER, POST, PATCH, DELETE } from "./cart.action.js";
 
 const handleResponse = (res, result, successStatus = 200) => {
   const response = {

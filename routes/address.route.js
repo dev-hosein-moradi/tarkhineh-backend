@@ -12,22 +12,24 @@ import {
   updateAddressHandler,
 } from "../controllers/address.controller.js";
 
-const foodRouter = Router();
+const AdressRouter = Router();
 // public route
-foodRouter.get("/api/addresses", authenticateToken, getAddressesByUserHandler);
-foodRouter.get("/api/address/:id", authenticateToken, getAddressHandler);
-foodRouter.post("/api/address", authenticateToken, addAddressHandler);
-foodRouter.patch("/api/address", authenticateToken, updateAddressHandler);
-foodRouter.delete("/api/address/:id", authenticateToken, deleteAddressHandler);
+AdressRouter.get(
+  "/api/addresses",
+  authenticateToken,
+  getAddressesByUserHandler
+);
+AdressRouter.get("/address/:id", authenticateToken, getAddressHandler);
+AdressRouter.post("/address", authenticateToken, addAddressHandler);
+AdressRouter.patch("/address", authenticateToken, updateAddressHandler);
+AdressRouter.delete("/address/:id", authenticateToken, deleteAddressHandler);
 
 // for admin
-foodRouter.get(
+AdressRouter.get(
   "/admin/addresses",
   authenticateToken,
   requireAdmin,
   getAddressesHandler
 );
 
-export default (app) => {
-  app.use("/", foodRouter);
-};
+export default AdressRouter;

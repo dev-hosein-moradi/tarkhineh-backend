@@ -1,8 +1,5 @@
 import { Router } from "express";
-import {
-  authenticateToken,
-  requireAdmin,
-} from "../middlewares/auth.middleware.js";
+
 import {
   addCartHandler,
   deleteCartHandler,
@@ -10,6 +7,10 @@ import {
   getCartsHandler,
   updateCartHandler,
 } from "../controllers/cart.controller.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/auth.middleware.js";
 
 const cartRouter = Router();
 

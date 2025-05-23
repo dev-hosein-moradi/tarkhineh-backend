@@ -1,16 +1,17 @@
 import { Router } from "express";
-import {
-  authenticateToken,
-  requireAdmin,
-} from "../middlewares/auth.middleware.js";
+
 import {
   addFoodHandler,
   deleteFoodHandler,
   getFoodHandler,
   getFoodsHandler,
   updateFoodHandler,
-} from "../controllers/food.controller.js";
+} from "../controllers/foods.controller.js";
 import { verifyCache } from "../helpers/cache.js";
+import {
+  authenticateToken,
+  requireAdmin,
+} from "../middleware/auth.middleware.js";
 
 const foodRouter = Router();
 

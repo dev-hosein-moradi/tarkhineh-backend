@@ -5,7 +5,7 @@ import {
   POST,
   PATCH,
   DELETE,
-} from "../actions/order.action.js";
+} from "./order.action.js";
 
 const handleOrderResponse = (res, result, successStatus = 200) => {
   const response = {

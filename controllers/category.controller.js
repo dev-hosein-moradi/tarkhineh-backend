@@ -1,10 +1,4 @@
-import {
-  GET,
-  GETBYID,
-  POST,
-  PATCH,
-  DELETE,
-} from "../actions/category.action.js";
+import { GET, GETBYID, POST, PATCH, DELETE } from "./category.action.js";
 
 const handleResponse = (res, result, successStatus = 200) => {
   const response = {
