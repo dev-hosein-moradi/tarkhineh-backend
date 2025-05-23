@@ -31,7 +31,7 @@ export const getAddressesHandler = async (req, res) => {
       data: null,
       error,
       ok: false,
-      message: "سیستم با مشکل مواجه شده است لطفا دوباره تلاش کنید",
+      message: "خطای سرور: لطفا دوباره تلاش کنید",
     });
   }
 };
