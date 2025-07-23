@@ -1,3 +1,6 @@
+//npx prisma migrate dev --name ""
+//npx prisma db push
+
 generator client {
   provider = "prisma-client-js"
 }

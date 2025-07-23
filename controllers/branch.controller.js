@@ -2,10 +2,10 @@ import { DELETE, GET, GETBYID, PATCH, POST } from "./branch.action.js";
 
 export const getBranchsHandler = async (req, res) => {
   try {
-    const result = await GET();  // Changed from branchs to result for clarity
+    const result = await GET(); // Changed from branchs to result for clarity
     if (result.success) {
       res.status(200).json({
-        data: result.branches,  // Changed from branchs to branches (matches action return)
+        data: result.branches, // Changed from branchs to branches (matches action return)
         error: null,
         ok: true,
         message: result.message,
@@ -22,7 +22,7 @@ export const getBranchsHandler = async (req, res) => {
     console.error("[BRANCH_CONTROLLER_GETALL]", error);
     res.status(500).json({
       data: null,
-      error: error.message,  // Return error message instead of full error
+      error: error.message, // Return error message instead of full error
       ok: false,
       message: "خطای سرور: لطفا دوباره تلاش کنید",
     });
@@ -40,7 +40,8 @@ export const getBranchHandler = async (req, res) => {
         message: result.message,
       });
     } else {
-      res.status(result.error?.code === 'P2025' ? 404 : 400).json({  // Handle not found
+      res.status(result.error?.code === "P2025" ? 404 : 400).json({
+        // Handle not found
         data: null,
         error: result.error?.message || "خطا در دریافت اطلاعات",
         ok: false,
@@ -60,18 +61,10 @@ export const getBranchHandler = async (req, res) => {
 
 export const addBranchsHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "دسترسی غیرمجاز",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
     const result = await POST(req.body);
     if (result.success) {
-      res.status(201).json({  // Changed to 201 for resource creation
+      res.status(201).json({
+        // Changed to 201 for resource creation
         data: result.newBranch,
         error: null,
         ok: true,
@@ -98,16 +91,7 @@ export const addBranchsHandler = async (req, res) => {
 
 export const updateBranchsHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "دسترسی غیرمجاز",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const result = await PATCH({ id: req.params.id, ...req.body });  // Use params.id
+    const result = await PATCH({ id: req.params.id, ...req.body }); // Use params.id
     if (result.success) {
       res.status(200).json({
         data: result.updated,
@@ -116,7 +100,7 @@ export const updateBranchsHandler = async (req, res) => {
         message: result.message,
       });
     } else {
-      const statusCode = result.error?.code === 'P2025' ? 404 : 400;
+      const statusCode = result.error?.code === "P2025" ? 404 : 400;
       res.status(statusCode).json({
         data: null,
         error: result.error?.message || "خطا در به‌روزرسانی",
@@ -137,16 +121,7 @@ export const updateBranchsHandler = async (req, res) => {
 
 export const deleteBranchsHandler = async (req, res) => {
   try {
-    if (req.authData.userType !== "admin") {
-      return res.status(403).json({
-        data: null,
-        error: "دسترسی غیرمجاز",
-        message: "شما مجوز لازم برای انجام این عملیات را ندارید",
-        ok: false,
-      });
-    }
-
-    const result = await DELETE(req.params.id);  // Use params.id instead of body
+    const result = await DELETE(req.params.id); // Use params.id instead of body
     if (result.success) {
       res.status(200).json({
         data: result.deleted,
@@ -155,7 +130,7 @@ export const deleteBranchsHandler = async (req, res) => {
         message: result.message,
       });
     } else {
-      const statusCode = result.error?.code === 'P2025' ? 404 : 400;
+      const statusCode = result.error?.code === "P2025" ? 404 : 400;
       res.status(statusCode).json({
         data: null,
         error: result.error?.message || "خطا در حذف",

@@ -26,11 +26,14 @@ export const authenticateToken = async (req, res, next) => {
 };
 
 export const requireAdmin = (req, res, next) => {
-  if (req.user?.role !== "admin") {
-    // Assuming your JWT stores role
+  const role = req.authData?.type || req.authData?.userType;
+
+  if (role !== "admin") {
     return res.status(403).json({
       ok: false,
-      message: "دسترسی محدود به مدیران سیستم",
+      message: "دسترسی فقط برای مدیران مجاز است.",
+      error: "access_denied",
+      data: null,
     });
   }
   next();

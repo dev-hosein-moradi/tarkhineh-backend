@@ -50,10 +50,12 @@ export const loginUserHandler = async (req, res, next) => {
     if (validationErrorResponse) return validationErrorResponse;
 
     const { mobile, password } = req.body;
+    console.log(mobile + "----" + password);
+
     const result = await loginUser(mobile, password);
 
     if (result.success) {
-      res.cookie("authToken", result.token, {
+      res.cookie("authToken", result.tokens.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -68,9 +70,10 @@ export const loginUserHandler = async (req, res, next) => {
         ok: true,
         message: result.message,
         data: {
-          token: result.token,
+          token: result.tokens.accessToken,
           userId: result.userId,
           mobile: result.mobile,
+          type: result.type,
         },
         error: null,
       });

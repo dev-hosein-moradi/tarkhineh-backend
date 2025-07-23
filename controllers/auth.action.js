@@ -64,30 +64,24 @@ export const registerUser = async (data) => {
   }
 };
 
-export const loginUser = async (data) => {
+export const loginUser = async (mobile, password) => {
   try {
-    // Find user
     const user = await prisma.user.findUnique({
-      where: { mobileNumber: data.mobile },
-      select: {
-        id: true,
-        mobileNumber: true,
-        password: true,
-        type: true,
-      },
+      where: { mobileNumber: mobile },
     });
 
     if (!user) {
       return {
         success: false,
-        message: "نام کاربری یا رمز عبور اشتباه است",
+        message: "نام کاربری اشتباه است",
         errors: ["invalid_credentials"],
       };
     }
+    console.log(user);
+    const isValidPass = await comparePasswordHash(user.password, password);
+    console.log(isValidPass);
 
-    // Verify password
-    const isMatch = await comparePasswordHash(user.password, data.password);
-    if (!isMatch) {
+    if (!isValidPass) {
       return {
         success: false,
         message: "نام کاربری یا رمز عبور اشتباه است",
@@ -97,12 +91,12 @@ export const loginUser = async (data) => {
 
     // Generate tokens
     const tokens = {
-      accessToken: generateAccessToken({
+      accessToken: await generateToken({
         id: user.id,
         mobile: user.mobileNumber,
         type: user.type,
       }),
-      refreshToken: generateRefreshToken({
+      refreshToken: await refreshToken({
         id: user.id,
         mobile: user.mobileNumber,
       }),

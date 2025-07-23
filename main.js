@@ -71,24 +71,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-// addAuthRouter(app);
-// addUserRouter(app);
-// addFoodRouter(app);
-// addBranchRouter(app);
-// addCartRouter(app);
-// addCategoryRouter(app);
-// addAddressRouter(app);
-// addOrderRouter(app);
-// addDateRouter(app);
-app.use("/", userRouter);
-app.use("/", foodRouter);
-app.use("/", cartRouter);
-app.use("/", BranchRouter);
-app.use("/", categoryRouter);
-app.use("/", authRouter);
-app.use("/", orderRouter);
-app.use("/", AddressRouter);
-app.use("/", dateRouter);
+app.use("/api", userRouter);
+app.use("/api", foodRouter);
+app.use("/api", cartRouter);
+app.use("/api", BranchRouter);
+app.use("/api", categoryRouter);
+app.use("/api", authRouter);
+app.use("/api", orderRouter);
+app.use("/api", AddressRouter);
+app.use("/api", dateRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Server Running Successfully." });
