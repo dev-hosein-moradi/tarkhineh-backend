@@ -53,20 +53,36 @@ export const POST = async (data) => {
 
     const newBranch = await prisma.branch.create({
       data: {
+        // Required fields
         name: data.name,
         title: data.title,
         address: data.address,
         workTime: data.workTime,
-        tel: data.tel || [], // Default empty array
+
+        // Optional fields from schema
         ownerFullName: data.ownerFullName,
+        ownerNatCode: data.ownerNatCode,
         ownerPhone: data.ownerPhone,
-        // Include other optional fields as needed
+        ownerState: data.ownerState,
+        ownerCity: data.ownerCity,
+        ownerRegion: data.ownerRegion,
+        ownerAddress: data.ownerAddress,
+        ownerType: data.ownerType,
+        placeArea: data.placeArea,
+        placeAge: data.placeAge,
+
+        // Boolean fields with defaults
+        verification: Boolean(data.verification || false),
+        kitchen: Boolean(data.kitchen || false),
+        parking: Boolean(data.parking || false),
+        store: Boolean(data.store || false),
+
+        // Other fields
         image: data.image,
-        verification: Boolean(data.verification),
-        kitchen: Boolean(data.kitchen),
-        // ... other fields
+        tel: data.tel || [], // Default empty array
       },
     });
+
     return {
       newBranch,
       success: true,
@@ -87,23 +103,49 @@ export const PATCH = async (data) => {
   try {
     if (!data.id) throw new Error("شناسه شعبه ضروری است");
 
+    // Build update data object dynamically, only including defined values
+    const updateData = {};
+
+    // Required fields
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.address !== undefined) updateData.address = data.address;
+    if (data.workTime !== undefined) updateData.workTime = data.workTime;
+
+    // Owner information fields
+    if (data.ownerFullName !== undefined)
+      updateData.ownerFullName = data.ownerFullName;
+    if (data.ownerNatCode !== undefined)
+      updateData.ownerNatCode = data.ownerNatCode;
+    if (data.ownerPhone !== undefined) updateData.ownerPhone = data.ownerPhone;
+    if (data.ownerState !== undefined) updateData.ownerState = data.ownerState;
+    if (data.ownerCity !== undefined) updateData.ownerCity = data.ownerCity;
+    if (data.ownerRegion !== undefined)
+      updateData.ownerRegion = data.ownerRegion;
+    if (data.ownerAddress !== undefined)
+      updateData.ownerAddress = data.ownerAddress;
+    if (data.ownerType !== undefined) updateData.ownerType = data.ownerType;
+
+    // Place information fields
+    if (data.placeArea !== undefined) updateData.placeArea = data.placeArea;
+    if (data.placeAge !== undefined) updateData.placeAge = data.placeAge;
+
+    // Boolean fields
+    if (data.verification !== undefined)
+      updateData.verification = Boolean(data.verification);
+    if (data.kitchen !== undefined) updateData.kitchen = Boolean(data.kitchen);
+    if (data.parking !== undefined) updateData.parking = Boolean(data.parking);
+    if (data.store !== undefined) updateData.store = Boolean(data.store);
+
+    // Other fields
+    if (data.image !== undefined) updateData.image = data.image;
+    if (data.tel !== undefined) updateData.tel = data.tel;
+
     const updated = await prisma.branch.update({
       where: { id: data.id },
-      data: {
-        name: data.name,
-        title: data.title,
-        address: data.address,
-        workTime: data.workTime,
-        tel: data.tel,
-        image: data.image,
-        verification:
-          data.verification !== undefined
-            ? Boolean(data.verification)
-            : undefined,
-        kitchen: data.kitchen !== undefined ? Boolean(data.kitchen) : undefined,
-        // Only update fields that are provided
-      },
+      data: updateData,
     });
+
     return {
       updated,
       success: true,
