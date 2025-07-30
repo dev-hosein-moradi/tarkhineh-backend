@@ -11,20 +11,88 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  firstName    String?  @default("")
-  lastName     String?  @default("")
+  id           String           @id @default(uuid())
+  firstName    String?          @default("")
+  lastName     String?          @default("")
   password     String
-  email        String?  @unique
-  mobileNumber String   @unique
-  type         UserType @default(user)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  email        String?          @unique
+  mobileNumber String           @unique
+  type         UserType         @default(user)
+  role         UserRole         @default(customer)
+  branchId     String? // For branch managers - links to specific branch
+  branch       Branch?          @relation(fields: [branchId], references: [id])
+  permissions  UserPermission[]
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 }
 
 enum UserType {
   user
   admin
+  manager
+  staff
+}
+
+enum UserRole {
+  customer // Regular customers
+  staff // Basic staff members
+  branchManager // Manager of specific branch
+  admin // Limited admin access
+  superAdmin // Full system access
+}
+
+model UserPermission {
+  id         String         @id @default(uuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission PermissionType
+  branchId   String? // Optional: for branch-specific permissions
+  branch     Branch?        @relation(fields: [branchId], references: [id])
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([userId, permission, branchId]) // Prevent duplicate permissions
+}
+
+enum PermissionType {
+  // Food Management
+  MANAGE_FOODS
+  VIEW_FOODS
+
+  // Branch Management
+  MANAGE_BRANCHES
+  VIEW_BRANCHES
+  MANAGE_OWN_BRANCH
+
+  // Order Management
+  MANAGE_ORDERS
+  VIEW_ORDERS
+  MANAGE_BRANCH_ORDERS
+
+  // User Management
+  MANAGE_USERS
+  VIEW_USERS
+  MANAGE_BRANCH_STAFF
+
+  // Accompaniment Management
+  MANAGE_ACCOMPANIMENTS
+  VIEW_ACCOMPANIMENTS
+
+  // Category Management
+  MANAGE_CATEGORIES
+  VIEW_CATEGORIES
+
+  // Reports and Analytics
+  VIEW_REPORTS
+  VIEW_BRANCH_REPORTS
+
+  // System Settings
+  MANAGE_SYSTEM_SETTINGS
+
+  // Cart Management
+  MANAGE_CARTS
+  VIEW_CARTS
 }
 
 model Order {
@@ -79,6 +147,29 @@ model Food {
   updatedAt         DateTime @updatedAt
 }
 
+model Accompaniment {
+  id          String                @id @default(uuid())
+  name        String
+  categoryId  String
+  category    AccompanimentCategory @relation(fields: [categoryId], references: [id])
+  price       String
+  image       String?
+  description String?
+  available   Boolean               @default(true)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+}
+
+model AccompanimentCategory {
+  id             String          @id @default(uuid())
+  name           String          @unique // نوشابه، سالاد، دسر و ...
+  title          String // عنوان فارسی
+  image          String?
+  accompaniments Accompaniment[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
 model Category {
   id        String   @id @default(uuid())
   name      String
@@ -130,8 +221,13 @@ model Branch {
   image         String?
   workTime      String
   tel           String[] @default([])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+
+  // Relations
+  users       User[] // Branch managers and staff
+  permissions UserPermission[] // Branch-specific permissions
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Address {

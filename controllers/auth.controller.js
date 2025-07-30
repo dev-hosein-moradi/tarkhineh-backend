@@ -50,8 +50,6 @@ export const loginUserHandler = async (req, res, next) => {
     if (validationErrorResponse) return validationErrorResponse;
 
     const { mobile, password } = req.body;
-    console.log(mobile + "----" + password);
-
     const result = await loginUser(mobile, password);
 
     if (result.success) {
@@ -59,7 +57,7 @@ export const loginUserHandler = async (req, res, next) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-        maxAge: 24 * 60 * 60 * 1000, // 1 روز
+        maxAge: 24 * 60 * 60 * 1000,
         domain:
           process.env.NODE_ENV === "production"
             ? "tarkhineh.hosseinmoradi.ir"
@@ -74,6 +72,7 @@ export const loginUserHandler = async (req, res, next) => {
           userId: result.userId,
           mobile: result.mobile,
           type: result.type,
+          role: result.role, // Add role to response
         },
         error: null,
       });

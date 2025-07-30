@@ -68,6 +68,15 @@ export const loginUser = async (mobile, password) => {
   try {
     const user = await prisma.user.findUnique({
       where: { mobileNumber: mobile },
+      include: {
+        branch: {
+          select: {
+            id: true,
+            name: true,
+            title: true,
+          },
+        },
+      },
     });
 
     if (!user) {
@@ -77,9 +86,8 @@ export const loginUser = async (mobile, password) => {
         errors: ["invalid_credentials"],
       };
     }
-    console.log(user);
+
     const isValidPass = await comparePasswordHash(user.password, password);
-    console.log(isValidPass);
 
     if (!isValidPass) {
       return {
@@ -89,12 +97,13 @@ export const loginUser = async (mobile, password) => {
       };
     }
 
-    // Generate tokens
+    // Generate tokens with role included
     const tokens = {
       accessToken: await generateToken({
         id: user.id,
         mobile: user.mobileNumber,
         type: user.type,
+        role: user.role, // Include role in token
       }),
       refreshToken: await refreshToken({
         id: user.id,
@@ -109,6 +118,7 @@ export const loginUser = async (mobile, password) => {
       userId: user.id,
       mobile: user.mobileNumber,
       type: user.type,
+      role: user.role, // Include role in response
     };
   } catch (error) {
     console.error("[LOGIN_ERROR]:", error);

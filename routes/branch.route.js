@@ -10,6 +10,11 @@ import {
   getBranchsHandler,
   updateBranchsHandler,
 } from "../controllers/branch.controller.js";
+import {
+  requirePermission,
+  requireSuperAdmin,
+  requireBranchAccess,
+} from "../middleware/permission.middleware.js";
 
 const BranchRouter = Router();
 
@@ -21,14 +26,16 @@ BranchRouter.get("/branches/:id", getBranchHandler);
 BranchRouter.post(
   "/admin/branches",
   authenticateToken,
-  requireAdmin,
+  requirePermission("MANAGE_BRANCHES"),
   addBranchsHandler
 );
 
+// Branch manager can update their own branch
 BranchRouter.patch(
   "/admin/branches/:id",
   authenticateToken,
-  requireAdmin,
+  requireBranchAccess,
+  requirePermission("MANAGE_OWN_BRANCH", true),
   updateBranchsHandler
 );
 

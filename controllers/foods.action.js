@@ -16,6 +16,33 @@ const foodSelectFields = {
   createdAt: true,
 };
 
+const accompanimentSelectFields = {
+  id: true,
+  name: true,
+  categoryId: true,
+  category: {
+    select: {
+      id: true,
+      name: true,
+      title: true,
+    },
+  },
+  price: true,
+  image: true,
+  description: true,
+  available: true,
+  createdAt: true,
+};
+
+const categorySelectFields = {
+  id: true,
+  name: true,
+  title: true,
+  image: true,
+  createdAt: true,
+};
+
+// FOOD FUNCTIONS
 export const GET = async () => {
   try {
     const foods = await prisma.food.findMany({
@@ -167,6 +194,295 @@ export const DELETE = async (id) => {
     return {
       success: false,
       message: "Error deleting food",
+      error: error.message,
+    };
+  }
+};
+
+// ACCOMPANIMENT FUNCTIONS
+export const GET_ACCOMPANIMENTS = async () => {
+  try {
+    const accompaniments = await prisma.accompaniment.findMany({
+      select: accompanimentSelectFields,
+      orderBy: { createdAt: "desc" },
+    });
+    return {
+      success: true,
+      data: accompaniments,
+      message: "Accompaniments fetched successfully",
+    };
+  } catch (error) {
+    console.error("[ACCOMPANIMENT_GET_ALL_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error fetching accompaniments",
+      error: error.message,
+    };
+  }
+};
+
+export const GET_ACCOMPANIMENT_BY_ID = async (id) => {
+  try {
+    const accompaniment = await prisma.accompaniment.findUnique({
+      where: { id },
+      select: accompanimentSelectFields,
+    });
+
+    if (!accompaniment) {
+      return {
+        success: false,
+        message: "Accompaniment not found",
+        error: { code: "P2025" },
+      };
+    }
+
+    return {
+      success: true,
+      data: accompaniment,
+      message: "Accompaniment fetched successfully",
+    };
+  } catch (error) {
+    console.error("[ACCOMPANIMENT_GET_BY_ID_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error fetching accompaniment",
+      error: error.message,
+    };
+  }
+};
+
+export const POST_ACCOMPANIMENT = async (data) => {
+  try {
+    const requiredFields = ["name", "categoryId", "price"];
+    const missingFields = requiredFields.filter((field) => !data[field]);
+
+    if (missingFields.length > 0) {
+      return {
+        success: false,
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+        error: "ValidationError",
+      };
+    }
+
+    const newAccompaniment = await prisma.accompaniment.create({
+      data: {
+        name: data.name,
+        categoryId: data.categoryId,
+        price: data.price,
+        image: data.image || "",
+        description: data.description || "",
+        available: Boolean(data.available ?? true),
+      },
+      select: accompanimentSelectFields,
+    });
+
+    return {
+      success: true,
+      data: newAccompaniment,
+      message: "Accompaniment created successfully",
+    };
+  } catch (error) {
+    console.error("[ACCOMPANIMENT_CREATE_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error creating accompaniment",
+      error: error.message,
+    };
+  }
+};
+
+export const PATCH_ACCOMPANIMENT = async ({ id, ...data }) => {
+  try {
+    const updateData = {};
+
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
+    if (data.price !== undefined) updateData.price = data.price;
+    if (data.image !== undefined) updateData.image = data.image;
+    if (data.description !== undefined)
+      updateData.description = data.description;
+    if (data.available !== undefined)
+      updateData.available = Boolean(data.available);
+
+    const updated = await prisma.accompaniment.update({
+      where: { id },
+      data: updateData,
+      select: accompanimentSelectFields,
+    });
+
+    return {
+      success: true,
+      data: updated,
+      message: "Accompaniment updated successfully",
+    };
+  } catch (error) {
+    console.error("[ACCOMPANIMENT_UPDATE_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error updating accompaniment",
+      error: error.message,
+    };
+  }
+};
+
+export const DELETE_ACCOMPANIMENT = async (id) => {
+  try {
+    await prisma.accompaniment.delete({
+      where: { id },
+    });
+    return {
+      success: true,
+      data: { id },
+      message: "Accompaniment deleted successfully",
+    };
+  } catch (error) {
+    console.error("[ACCOMPANIMENT_DELETE_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error deleting accompaniment",
+      error: error.message,
+    };
+  }
+};
+
+// CATEGORY FUNCTIONS
+export const GET_ACCOMPANIMENT_CATEGORIES = async () => {
+  try {
+    const categories = await prisma.accompanimentCategory.findMany({
+      select: categorySelectFields,
+      orderBy: { createdAt: "desc" },
+    });
+    return {
+      success: true,
+      data: categories,
+      message: "Categories fetched successfully",
+    };
+  } catch (error) {
+    console.error("[CATEGORY_GET_ALL_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error fetching categories",
+      error: error.message,
+    };
+  }
+};
+
+export const GET_ACCOMPANIMENT_CATEGORY_BY_ID = async (id) => {
+  try {
+    const category = await prisma.accompanimentCategory.findUnique({
+      where: { id },
+      select: {
+        ...categorySelectFields,
+        accompaniments: {
+          select: accompanimentSelectFields,
+        },
+      },
+    });
+
+    if (!category) {
+      return {
+        success: false,
+        message: "Category not found",
+        error: { code: "P2025" },
+      };
+    }
+
+    return {
+      success: true,
+      data: category,
+      message: "Category fetched successfully",
+    };
+  } catch (error) {
+    console.error("[CATEGORY_GET_BY_ID_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error fetching category",
+      error: error.message,
+    };
+  }
+};
+
+export const POST_ACCOMPANIMENT_CATEGORY = async (data) => {
+  try {
+    const requiredFields = ["name", "title"];
+    const missingFields = requiredFields.filter((field) => !data[field]);
+
+    if (missingFields.length > 0) {
+      return {
+        success: false,
+        message: `Missing required fields: ${missingFields.join(", ")}`,
+        error: "ValidationError",
+      };
+    }
+
+    const newCategory = await prisma.accompanimentCategory.create({
+      data: {
+        name: data.name,
+        title: data.title,
+        image: data.image || "",
+      },
+      select: categorySelectFields,
+    });
+
+    return {
+      success: true,
+      data: newCategory,
+      message: "Category created successfully",
+    };
+  } catch (error) {
+    console.error("[CATEGORY_CREATE_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error creating category",
+      error: error.message,
+    };
+  }
+};
+
+export const PATCH_ACCOMPANIMENT_CATEGORY = async ({ id, ...data }) => {
+  try {
+    const updateData = {};
+
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.image !== undefined) updateData.image = data.image;
+
+    const updated = await prisma.accompanimentCategory.update({
+      where: { id },
+      data: updateData,
+      select: categorySelectFields,
+    });
+
+    return {
+      success: true,
+      data: updated,
+      message: "Category updated successfully",
+    };
+  } catch (error) {
+    console.error("[CATEGORY_UPDATE_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error updating category",
+      error: error.message,
+    };
+  }
+};
+
+export const DELETE_ACCOMPANIMENT_CATEGORY = async (id) => {
+  try {
+    await prisma.accompanimentCategory.delete({
+      where: { id },
+    });
+    return {
+      success: true,
+      data: { id },
+      message: "Category deleted successfully",
+    };
+  } catch (error) {
+    console.error("[CATEGORY_DELETE_ERROR]:", error);
+    return {
+      success: false,
+      message: "Error deleting category",
       error: error.message,
     };
   }
