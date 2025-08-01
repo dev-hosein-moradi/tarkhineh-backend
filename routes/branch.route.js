@@ -9,6 +9,7 @@ import {
   getBranchHandler,
   getBranchsHandler,
   updateBranchsHandler,
+  toggleBranchVerificationHandler, // Add new handler
 } from "../controllers/branch.controller.js";
 import {
   requirePermission,
@@ -22,27 +23,50 @@ const BranchRouter = Router();
 BranchRouter.get("/branches", getBranchsHandler);
 BranchRouter.get("/branches/:id", getBranchHandler);
 
-// Protected admin routes
-BranchRouter.post(
+// Protected admin routes with pagination and search support
+BranchRouter.get(
   "/admin/branches",
   authenticateToken,
-  requirePermission("MANAGE_BRANCHES"),
-  addBranchsHandler
+  requireAdmin, // Admin and SuperAdmin can view all branches
+  getBranchsHandler // This will handle pagination and search
 );
 
-// Branch manager can update their own branch
-BranchRouter.patch(
-  "/admin/branches/:id",
-  authenticateToken,
-  requireBranchAccess,
-  requirePermission("MANAGE_OWN_BRANCH", true),
-  updateBranchsHandler
-);
-
-BranchRouter.delete(
+BranchRouter.get(
   "/admin/branches/:id",
   authenticateToken,
   requireAdmin,
+  getBranchHandler
+);
+
+// Create branch (SuperAdmin only)
+BranchRouter.post(
+  "/admin/branches",
+  authenticateToken,
+  requireSuperAdmin, // Only SuperAdmin can create
+  addBranchsHandler
+);
+
+// Update branch (SuperAdmin and Admin can edit)
+BranchRouter.patch(
+  "/admin/branches/:id",
+  authenticateToken,
+  requireAdmin, // Both Admin and SuperAdmin can update
+  updateBranchsHandler
+);
+
+// Toggle verification status (SuperAdmin and Admin)
+BranchRouter.patch(
+  "/admin/branches/:id/verification",
+  authenticateToken,
+  requireAdmin,
+  toggleBranchVerificationHandler
+);
+
+// Delete branch (SuperAdmin only)
+BranchRouter.delete(
+  "/admin/branches/:id",
+  authenticateToken,
+  requireSuperAdmin, // Only SuperAdmin can delete
   deleteBranchsHandler
 );
 
