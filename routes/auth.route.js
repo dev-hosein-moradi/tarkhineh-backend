@@ -4,9 +4,10 @@ import {
   registerUserHandler,
   logoutUserHandler,
   refreshTokenHandler,
+  verifyTokenHandler, // Add this import
 } from "../controllers/auth.controller.js";
 
-import { authenticate } from "../middleware/auth.middleware.js";
+import { authenticateToken } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validation.middleware.js";
 import {
   loginSchema,
@@ -21,12 +22,14 @@ authRouter.post("/register", validate(registerSchema), registerUserHandler);
 authRouter.post("/login", validate(loginSchema), loginUserHandler);
 
 // Protected routes
-authRouter.post("/logout", authenticate, logoutUserHandler);
+authRouter.post("/logout", authenticateToken, logoutUserHandler);
 authRouter.post(
   "/refresh-token",
   validate(refreshTokenSchema),
   refreshTokenHandler
 );
-// authRouter.get("/verify", authenticate, verifyTokenHandler);
+
+// Token verification endpoint - NO AUTO REFRESH
+authRouter.get("/verify", verifyTokenHandler);
 
 export default authRouter;

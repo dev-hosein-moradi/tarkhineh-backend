@@ -4,6 +4,7 @@ import {
   POST,
   PATCH,
   DELETE,
+  UPDATE_USER_STATUS, // Add this import
   ASSIGN_USER_ROLE,
   ASSIGN_USER_PERMISSIONS,
   GET_USERS_WITH_ROLES,
@@ -16,6 +17,9 @@ const handleResponse = (res, result, successStatus = 200) => {
   const response = {
     ok: result.success,
     data: result.data || null,
+    total: result.total || undefined,
+    totalPages: result.totalPages || undefined,
+    currentPage: result.currentPage || undefined,
     message: result.message,
     error: result.error || null,
   };
@@ -33,9 +37,38 @@ const handleResponse = (res, result, successStatus = 200) => {
 // Existing handlers
 export const getUsersHandler = async (req, res) => {
   try {
-    const result = await GET();
+    // Extract all query parameters
+    const filters = {
+      // Pagination
+      page: req.query.page,
+      limit: req.query.limit,
+
+      // Sorting
+      sort: req.query.sort,
+      order: req.query.order,
+
+      // Search
+      search: req.query.search,
+
+      // Filters
+      type: req.query.type,
+      role: req.query.role,
+      excludeRole: req.query.excludeRole,
+    };
+
+    // Remove undefined values
+    Object.keys(filters).forEach((key) => {
+      if (filters[key] === undefined) {
+        delete filters[key];
+      }
+    });
+
+    console.log("[GET_USERS_FILTERS]:", filters);
+
+    const result = await GET(filters);
     handleResponse(res, result);
   } catch (error) {
+    console.error("[GET_USERS_HANDLER_ERROR]:", error);
     handleResponse(
       res,
       {
@@ -231,9 +264,38 @@ export const assignUserRoleHandler = async (req, res) => {
 
 export const getUsersWithRolesHandler = async (req, res) => {
   try {
-    const result = await GET_USERS_WITH_ROLES();
+    // Extract all query parameters
+    const filters = {
+      // Pagination
+      page: req.query.page,
+      limit: req.query.limit,
+
+      // Sorting
+      sort: req.query.sort,
+      order: req.query.order,
+
+      // Search
+      search: req.query.search,
+
+      // Filters
+      type: req.query.type,
+      role: req.query.role,
+      excludeRole: req.query.excludeRole,
+    };
+
+    // Remove undefined values
+    Object.keys(filters).forEach((key) => {
+      if (filters[key] === undefined) {
+        delete filters[key];
+      }
+    });
+
+    console.log("[GET_USERS_WITH_ROLES_FILTERS]:", filters);
+
+    const result = await GET_USERS_WITH_ROLES(filters);
     handleResponse(res, result);
   } catch (error) {
+    console.error("[GET_USERS_WITH_ROLES_HANDLER_ERROR]:", error);
     handleResponse(
       res,
       {
@@ -243,5 +305,97 @@ export const getUsersWithRolesHandler = async (req, res) => {
       },
       500
     );
+  }
+};
+
+export const updateUserStatusHandler = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { isActive } = req.body;
+
+    // Input validation
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({
+        ok: false,
+        message: "فیلد isActive الزامی است و باید boolean باشد",
+        error: {
+          code: "INVALID_INPUT",
+          message: "isActive field is required and must be boolean",
+        },
+        data: null,
+      });
+    }
+
+    if (!userId) {
+      return res.status(400).json({
+        ok: false,
+        message: "شناسه کاربر الزامی است",
+        error: {
+          code: "MISSING_USER_ID",
+          message: "User ID is required",
+        },
+        data: null,
+      });
+    }
+
+    // Get current user info from auth middleware
+    const currentUserId = req.authData?.id;
+    const currentUserRole = req.authData?.userInfo?.role || req.authData?.role;
+
+    if (!currentUserId || !currentUserRole) {
+      return res.status(401).json({
+        ok: false,
+        message: "اطلاعات احراز هویت نامعتبر است",
+        error: {
+          code: "INVALID_AUTH",
+          message: "Invalid authentication data",
+        },
+        data: null,
+      });
+    }
+
+    const result = await UPDATE_USER_STATUS({
+      userId,
+      isActive,
+      currentUserId,
+      currentUserRole,
+    });
+
+    if (result.success) {
+      return res.status(200).json({
+        ok: true,
+        data: result.data,
+        message: result.message,
+        error: null,
+      });
+    } else {
+      // Handle specific error codes
+      let statusCode = 400;
+      if (result.error?.code === "P2025") {
+        statusCode = 404;
+      } else if (result.error?.code === "INSUFFICIENT_PERMISSION") {
+        statusCode = 403;
+      } else if (result.error?.code === "SELF_DEACTIVATION") {
+        statusCode = 400;
+      }
+
+      return res.status(statusCode).json({
+        ok: false,
+        message: result.message,
+        error: result.error,
+        data: null,
+      });
+    }
+  } catch (error) {
+    console.error("[UPDATE_USER_STATUS_HANDLER_ERROR]:", error);
+    return res.status(500).json({
+      ok: false,
+      message: "خطای سرور در تغییر وضعیت کاربر",
+      error: {
+        code: "SERVER_ERROR",
+        message: "Internal server error",
+      },
+      data: null,
+    });
   }
 };

@@ -79,3 +79,38 @@ export const authenticateToken = async (req, res, next) => {
     });
   }
 };
+
+// Add to your jwt utils
+export const storeRefreshToken = async (userId, token, expiresAt) => {
+  await prisma.refreshToken.create({
+    data: {
+      token,
+      userId,
+      expiresAt,
+    },
+  });
+};
+
+export const revokeRefreshToken = async (token) => {
+  await prisma.refreshToken.update({
+    where: { token },
+    data: { isRevoked: true },
+  });
+};
+
+export const verifyStoredRefreshToken = async (token) => {
+  const storedToken = await prisma.refreshToken.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+
+  if (
+    !storedToken ||
+    storedToken.isRevoked ||
+    storedToken.expiresAt < new Date()
+  ) {
+    throw new Error("Invalid refresh token");
+  }
+
+  return storedToken.user;
+};

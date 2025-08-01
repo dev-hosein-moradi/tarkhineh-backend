@@ -6,11 +6,11 @@ import {
   getUserHandler,
   getUsersHandler,
   updateUserHandler,
-  // Add new permission handlers
+  updateUserStatusHandler, // Add this new handler
   getUserPermissionsHandler,
   assignUserPermissionsHandler,
-  replaceUserPermissionsHandler, // New handler for PUT
-  removeUserPermissionsHandler, // New handler for DELETE
+  replaceUserPermissionsHandler,
+  removeUserPermissionsHandler,
   assignUserRoleHandler,
   getUsersWithRolesHandler,
 } from "../controllers/users.controller.js";
@@ -33,7 +33,7 @@ userRouter.get(
 userRouter.get(
   "/admin/users-with-roles",
   authenticateToken,
-  requireSuperAdmin,
+  requireAdmin,
   getUsersWithRolesHandler
 );
 
@@ -58,6 +58,14 @@ userRouter.patch(
   updateUserHandler
 );
 
+// Add the status toggle endpoint
+userRouter.patch(
+  "/admin/users/:userId/status",
+  authenticateToken,
+  requireAdmin,
+  updateUserStatusHandler
+);
+
 userRouter.delete(
   "/admin/users/:id",
   authenticateToken,
@@ -73,7 +81,6 @@ userRouter.get(
   getUserPermissionsHandler
 );
 
-// POST - Add permissions (keeps existing ones)
 userRouter.post(
   "/admin/users/:id/permissions",
   authenticateToken,
@@ -81,7 +88,6 @@ userRouter.post(
   assignUserPermissionsHandler
 );
 
-// PUT - Replace all permissions (full replacement)
 userRouter.put(
   "/admin/users/:id/permissions",
   authenticateToken,
@@ -89,7 +95,6 @@ userRouter.put(
   replaceUserPermissionsHandler
 );
 
-// DELETE - Remove all permissions or specific ones
 userRouter.delete(
   "/admin/users/:id/permissions",
   authenticateToken,

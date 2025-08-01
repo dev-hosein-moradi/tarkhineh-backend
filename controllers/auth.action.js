@@ -12,8 +12,8 @@ export const registerUser = async (data) => {
     if (existingUser) {
       return {
         success: false,
-        message: "این شماره موبایل قبلاً ثبت شده است",
-        errors: ["mobile_exists"],
+        message: "کاربری با این شماره موبایل قبلاً ثبت نام کرده است",
+        errors: ["user_exists"],
       };
     }
 
@@ -21,26 +21,37 @@ export const registerUser = async (data) => {
     const hashedPassword = await generatePasswordHash(data.password);
     const newUser = await prisma.user.create({
       data: {
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
         mobileNumber: data.mobile,
         password: hashedPassword,
-        type: data.type,
+        type: data.type || "user",
+        role: data.role || "customer",
       },
-      select: {
-        id: true,
-        mobileNumber: true,
-        type: true,
-        createdAt: true,
+      include: {
+        branch: {
+          select: {
+            id: true,
+            name: true,
+            title: true,
+          },
+        },
       },
     });
 
-    // Generate tokens
+    // Generate tokens with userInfo object
     const tokens = {
-      accessToken: generateToken({
+      accessToken: await generateToken({
         id: newUser.id,
         mobile: newUser.mobileNumber,
-        type: newUser.type,
+        userInfo: {
+          type: newUser.type,
+          role: newUser.role,
+          branchId: newUser.branchId,
+          branch: newUser.branch,
+        },
       }),
-      refreshToken: refreshToken({
+      refreshToken: await refreshToken({
         id: newUser.id,
         mobile: newUser.mobileNumber,
       }),
@@ -53,6 +64,7 @@ export const registerUser = async (data) => {
       userId: newUser.id,
       mobile: newUser.mobileNumber,
       type: newUser.type,
+      role: newUser.role,
     };
   } catch (error) {
     console.error("[REGISTER_ERROR]:", error);
@@ -76,19 +88,29 @@ export const loginUser = async (mobile, password) => {
             title: true,
           },
         },
+        permissions: {
+          include: {
+            branch: {
+              select: {
+                id: true,
+                name: true,
+                title: true,
+              },
+            },
+          },
+        },
       },
     });
 
     if (!user) {
       return {
         success: false,
-        message: "نام کاربری اشتباه است",
+        message: "نام کاربری یا رمز عبور اشتباه است",
         errors: ["invalid_credentials"],
       };
     }
 
     const isValidPass = await comparePasswordHash(user.password, password);
-
     if (!isValidPass) {
       return {
         success: false,
@@ -97,13 +119,18 @@ export const loginUser = async (mobile, password) => {
       };
     }
 
-    // Generate tokens with role included
+    // Generate tokens with userInfo object
     const tokens = {
       accessToken: await generateToken({
         id: user.id,
         mobile: user.mobileNumber,
-        type: user.type,
-        role: user.role, // Include role in token
+        userInfo: {
+          type: user.type,
+          role: user.role,
+          branchId: user.branchId,
+          branch: user.branch,
+          permissions: user.permissions,
+        },
       }),
       refreshToken: await refreshToken({
         id: user.id,
@@ -118,7 +145,7 @@ export const loginUser = async (mobile, password) => {
       userId: user.id,
       mobile: user.mobileNumber,
       type: user.type,
-      role: user.role, // Include role in response
+      role: user.role,
     };
   } catch (error) {
     console.error("[LOGIN_ERROR]:", error);
